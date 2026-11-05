@@ -1,0 +1,63 @@
+<section class="rc-verification-section" aria-labelledby="rc-verification-title">
+  <div class="rc-verification-heading">
+    <div>
+      <span class="rc-verification-eyebrow">COMMUNITY FEEDBACK</span>
+      <h2 id="rc-verification-title">Recent passenger reports</h2>
+      <p>Confirm or flag an approved observation based on what you experienced.</p>
+    </div>
+    <span class="rc-verification-window">Last 24 hours</span>
+  </div>
+
+  {% if verification_reports %}
+  <div class="rc-verification-list">
+    {% for item in verification_reports %}
+    <article class="rc-verification-card">
+      <div class="rc-verification-card-top">
+        <div>
+          <span class="rc-verification-coach">{{ item.report.coach_type }}</span>
+          <strong>{{ item.report.from_station }} → {{ item.report.to_station }}</strong>
+        </div>
+        <span class="rc-verification-level rc-level-{{ item.report.crowd_level|lower|replace(' ', '-') }}">
+          {{ item.report.crowd_level }}
+        </span>
+      </div>
+      <div class="rc-verification-meta">
+        <span>{{ item.report.observed_at.strftime("%d %b %Y, %I:%M %p") }}</span>
+        <span>{{ item.confirm_count }} confirmations</span>
+        <span>{{ item.flag_count }} flags</span>
+      </div>
+      <div class="rc-reliability-line">
+        <strong>{{ item.reliability }}</strong>
+        <span>{{ item.feedback_count }} feedback vote(s)</span>
+      </div>
+
+      {% if current_user.is_authenticated and current_user.role == "passenger" and current_user.id != item.report.user_id %}
+      <form class="rc-verification-form" method="post"
+            action="{{ url_for('crowd.report_feedback', report_id=item.report.id) }}">
+        {{ feedback_form.hidden_tag() }}
+        <input type="hidden" name="train_number" value="{{ train.number }}">
+        <label class="visually-hidden" for="feedback-{{ item.report.id }}">Your feedback</label>
+        <select class="form-select form-select-sm" id="feedback-{{ item.report.id }}" name="vote_type">
+          <option value="confirm">I can confirm this</option>
+          <option value="flag">This does not match my observation</option>
+        </select>
+        <button class="btn btn-sm btn-outline-primary" type="submit">Submit feedback</button>
+      </form>
+      {% elif current_user.is_authenticated and current_user.id == item.report.user_id %}
+      <p class="rc-own-report-note">You submitted this report.</p>
+      {% else %}
+      <p class="rc-own-report-note"><a href="{{ url_for('authentication.login', next=request.path) }}">Sign in</a> as a passenger to provide feedback.</p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="rc-verification-empty">
+    <strong>No approved passenger reports in the last 24 hours.</strong>
+    <span>New reports appear here after admin moderation.</span>
+  </div>
+  {% endif %}
+  <p class="rc-verification-disclaimer">
+    Community feedback is an indication of agreement or disagreement, not proof of occupancy or an official railway measure.
+  </p>
+</section>

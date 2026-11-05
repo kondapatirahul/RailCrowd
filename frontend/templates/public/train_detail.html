@@ -3,6 +3,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/train_search.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/crowd_intelligence.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/report_verification.css') }}">
 {% endblock %}
 {% block content %}
 <section class="rc-train-page rc-detail-page">
@@ -19,6 +20,7 @@
   </div>
 
   {% include "components/crowd_intelligence.html" %}
+  {% include "components/report_verification.html" %}
 
   <div class="rc-results-heading"><div><h2>Route stations</h2><p>Stops available in the RailCrowd catalog.</p></div></div>
   {% if train.stops %}
@@ -34,6 +36,6 @@
   {% else %}
   <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
   {% endif %}
-  <div class="rc-data-note">Train route details are catalog information. Crowd summaries are community observations, not official railway occupancy or live passenger counts.</div>
+  <div class="rc-data-note">Train route details are catalog information. Crowd summaries and report feedback are community observations, not official railway occupancy or live passenger counts.</div>
 </section>
 {% endblock %}
