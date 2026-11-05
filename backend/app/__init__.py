@@ -41,10 +41,12 @@ def create_app(config_object: Any | None = None) -> Flask:
 
     from backend.app.database import configure_database, register_database_events
     from backend.app.extensions import db, init_extensions
+    from backend.app.modules.api import health_bp
 
     configure_database(app)
     init_extensions(app)
     register_database_events(app, db)
+    app.register_blueprint(health_bp)
     return app
 
 

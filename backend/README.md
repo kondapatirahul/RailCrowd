@@ -4,24 +4,29 @@ The backend is a modular Flask application. Python code lives in `backend/`,
 while server-rendered templates and static assets live in the top-level
 `frontend/` directory.
 
-## Database and models
+## Health endpoints
 
-All ORM models must use the shared `db` extension from
-`backend.app.extensions`. The extension is configured with the shared
-`DeclarativeBase` in `backend.app.models.base`, which provides predictable
-constraint naming for database migrations.
+The application exposes lightweight health checks:
 
-Reusable conventions:
+- `GET /health/live` — confirms the Flask process is responding.
+- `GET /health/ready` — checks that the configured database can execute a
+  simple query.
+- `GET /health` — compact summary of application and database availability.
 
-- `Base`: common declarative model base and metadata.
-- `TimestampMixin`: UTC-oriented `created_at` and `updated_at` columns.
-- `utc_now()`: aware UTC timestamp helper for application code.
+Successful checks return HTTP `200`. A failed database readiness check returns
+HTTP `503`. The response intentionally omits database URLs, credentials,
+filesystem paths, and other sensitive configuration.
 
-When adding a model, define it in its own module under `backend/app/models/`
-and import it from `backend/app/models/__init__.py` so migration autogeneration
-can discover it. Use explicit table names, indexes, unique constraints, and
-foreign-key delete behavior. Avoid defining duplicate SQLAlchemy `Table`
-objects or creating a second declarative base.
+## Run locally
 
-SQLite schema changes are managed through Flask-Migrate. Do not use
-`db.create_all()` as a replacement for migration files.
+From the repository root:
+
+```bash
+python -m venv .venv
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m backend.run
+```
+
+Open `http://127.0.0.1:5000/health` to inspect the service health response.
