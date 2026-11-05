@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement or new capability for RailCrowd.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What real-world user problem does this address?
+      placeholder: As a passenger, I need...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe other approaches you considered.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safeguards
+    attributes:
+      label: Product considerations
+      options:
+        - label: This does not present community reports as official occupancy.
+        - label: This does not require unnecessary passenger personal data.
