@@ -29,7 +29,7 @@ def _safe_local_redirect(target):
 def _default_dashboard_url(user):
     """Choose the landing page that matches the account's role."""
     if user.is_admin:
-        return url_for("admin.report_queue")
+        return url_for("admin.dashboard")
     return url_for("passenger.dashboard")
 
 

@@ -1,8 +1,8 @@
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
-from ...models.train import Train
-from ...models.station import Station
+from ....models.station import Station
+from ....models.train import Train
 
 
 def search_trains(query="", limit=50):
