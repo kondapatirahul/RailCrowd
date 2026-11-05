@@ -2,9 +2,12 @@
 
 from flask import flash, render_template, request
 
+from backend.app.modules.crowd.forms import ReportFeedbackForm
+
 from . import trains_bp
 from .services.catalog_service import get_train_by_number, search_trains
 from .services.crowd_intelligence import get_train_crowd_summary
+from .services.report_verification import get_public_verification_reports
 
 
 @trains_bp.get("/")
@@ -27,8 +30,11 @@ def detail(train_number):
         return render_template("public/train_not_found.html", train_number=train_number), 404
 
     crowd_summary = get_train_crowd_summary(train.number)
+    verification_reports = get_public_verification_reports(train.number)
     return render_template(
         "public/train_detail.html",
         train=train,
         crowd_summary=crowd_summary,
+        verification_reports=verification_reports,
+        feedback_form=ReportFeedbackForm(),
     )
