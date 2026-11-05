@@ -20,6 +20,7 @@ def create_app(config_object: Any | None = None) -> Flask:
         static_url_path="/static",
     )
     app.config["PROJECT_ROOT"] = str(project_root)
+    app.config["MIGRATIONS_DIR"] = str(project_root / "backend" / "migrations")
 
     if config_object is None:
         from backend.app.config import CONFIG_BY_NAME
@@ -41,8 +42,6 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.database import configure_database, register_database_events
     from backend.app.extensions import db, init_extensions
 
-    # SQLAlchemy reads engine options during init_app(), so prepare the
-    # SQLite configuration before binding the shared extension instance.
     configure_database(app)
     init_extensions(app)
     register_database_events(app, db)
