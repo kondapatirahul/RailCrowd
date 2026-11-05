@@ -1,0 +1,85 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Create account | RailCrowd{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-6 col-xl-5">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <div class="text-center mb-4">
+            <span class="badge text-bg-primary mb-2">RailCrowd Passenger</span>
+            <h1 class="h3 fw-bold">Create your account</h1>
+            <p class="text-secondary mb-0">Help fellow passengers make informed journeys.</p>
+          </div>
+
+          {% if registered %}
+            <div class="alert alert-success" role="status">
+              Your account has been created. You can sign in once the login page is available.
+            </div>
+          {% endif %}
+
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endwith %}
+
+          <form method="post" action="{{ url_for('authentication.register') }}" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.full_name.label(class="form-label") }}
+              {{ form.full_name(class="form-control form-control-lg", autocomplete="name", placeholder="Your full name") }}
+              {% for error in form.full_name.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.username.label(class="form-label") }}
+              {{ form.username(class="form-control", autocomplete="username", placeholder="Choose a username") }}
+              {% for error in form.username.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.email.label(class="form-label") }}
+              {{ form.email(class="form-control", autocomplete="email", placeholder="you@example.com") }}
+              {% for error in form.email.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.password.label(class="form-label") }}
+              {{ form.password(class="form-control", autocomplete="new-password", placeholder="At least 8 characters") }}
+              {% for error in form.password.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-4">
+              {{ form.confirm_password.label(class="form-label") }}
+              {{ form.confirm_password(class="form-control", autocomplete="new-password", placeholder="Enter password again") }}
+              {% for error in form.confirm_password.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            {{ form.submit(class="btn btn-primary btn-lg w-100") }}
+          </form>
+          <p class="small text-secondary text-center mt-4 mb-0">
+            Registration creates a passenger account. Administrator accounts are provisioned separately.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

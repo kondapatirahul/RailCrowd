@@ -4,29 +4,28 @@ The backend is a modular Flask application. Python code lives in `backend/`,
 while server-rendered templates and static assets live in the top-level
 `frontend/` directory.
 
-## User model
+## Passenger registration
 
-The first account model is available as `User` from
-`backend.app.models`. It supports the `passenger` and `admin` roles, account
-enablement, email-verification state, normalized username/email helpers, and
-Werkzeug password hashing.
+`GET /register` displays the passenger registration form and `POST /register`
+validates and creates a passenger account. Validation is performed on the
+server using Flask-WTF/WTForms. Passwords are hashed using the User model's
+Werkzeug helpers.
 
-Security conventions:
+Public registration always assigns the `passenger` role. Do not accept a role
+from submitted form data and do not expose public administrator registration.
+Username and email values are normalized before uniqueness checks. Database
+unique constraints remain the final protection against concurrent duplicates.
 
-- Never store plaintext passwords.
-- Call `User.set_password()` to hash a password.
-- Use `User.check_password()` to verify credentials.
-- Never include `password_hash` in API or template payloads.
-- Use `User.to_public_dict()` for the intentionally limited public fields.
-- Do not create public administrator registration; administrator provisioning
-  must be restricted to a trusted administrative process.
-- Model changes must be captured in a reviewed Flask-Migrate revision.
+The registration page extends `frontend/templates/layouts/base.html` and uses
+Bootstrap 5 from its CDN. The login route is added in a later increment.
 
-After adding this model, generate and review a migration:
+## Database migration
+
+After merging the user model increment, create and apply its migration:
 
 ```bash
 flask --app backend.run db migrate -m "add user accounts"
 flask --app backend.run db upgrade
 ```
 
-Do not run `db.create_all()` in production. It is used only by isolated tests.
+Review generated migrations before applying them.

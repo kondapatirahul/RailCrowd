@@ -92,4 +92,5 @@ class User(TimestampMixin, UserMixin, db.Model):
         }
 
     def __repr__(self) -> str:
+        """Return a concise string representation of the account."""
         return f"<User id={self.id!r} username={self.username!r}>"
