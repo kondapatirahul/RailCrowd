@@ -1,6 +1,9 @@
 {% extends "layouts/base.html" %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/train_search.css') }}">{% endblock %}
 {% block title %}{{ train.name }} ({{ train.number }}) | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/train_search.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crowd_intelligence.css') }}">
+{% endblock %}
 {% block content %}
 <section class="rc-train-page rc-detail-page">
   <a class="rc-back-link" href="{{ url_for('trains.search') }}">← Back to train search</a>
@@ -15,7 +18,8 @@
     </div>
   </div>
 
-  <section class="rc-crowd-panel"><div class="rc-crowd-head"><div><span class="rc-eyebrow">COMMUNITY INTELLIGENCE</span><h2>Recent crowd reports</h2><p>Approved reports from the last six hours</p></div>{% if crowd.available %}<span class="rc-crowd-pill rc-crowd-{{ crowd.level|lower|replace(' ', '-') }}">{{ crowd.level }} · {{ crowd.confidence }} confidence</span>{% else %}<span class="rc-crowd-pill rc-crowd-none">No recent reports</span>{% endif %}</div>{% if crowd.available %}<div class="rc-crowd-summary"><strong>{{ crowd.reports }}</strong><span>approved reports</span><small>Last update: {{ crowd.updated_at[:16].replace('T', ' ') if crowd.updated_at else '—' }} UTC</small></div>{% if crowd.demo_data %}<p class="rc-crowd-disclaimer"><strong>DEMO SAMPLE DATA:</strong> illustrative examples for local testing, not real passenger reports.</p>{% endif %}<div class="rc-coach-grid">{% for item in crowd.coaches %}<article><span>{{ item.coach }}</span><strong>{{ item.level }}</strong><small>{{ item.reports }} report(s)</small></article>{% endfor %}</div>{% else %}<p class="rc-no-crowd">{{ crowd.message }}</p>{% endif %}<p class="rc-crowd-disclaimer">Community estimate only. It is not official railway occupancy or a guarantee of seat availability.</p></section>
+  {% include "components/crowd_intelligence.html" %}
+
   <div class="rc-results-heading"><div><h2>Route stations</h2><p>Stops available in the RailCrowd catalog.</p></div></div>
   {% if train.stops %}
   <ol class="rc-stop-list">
@@ -30,6 +34,6 @@
   {% else %}
   <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
   {% endif %}
-  <div class="rc-data-note">This page displays catalog information only. Live running status, schedules, and official occupancy are not provided.</div>
+  <div class="rc-data-note">Train route details are catalog information. Crowd summaries are community observations, not official railway occupancy or live passenger counts.</div>
 </section>
 {% endblock %}
