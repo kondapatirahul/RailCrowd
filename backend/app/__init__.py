@@ -16,7 +16,7 @@ def create_app(config_object: Any | None = None) -> Flask:
             omitted, ``FLASK_CONFIG`` selects development/testing/production.
 
     Returns:
-        A configured Flask application instance.
+        A configured Flask application instance with extensions initialized.
     """
     project_root = Path(__file__).resolve().parents[2]
     load_dotenv(dotenv_path=project_root / ".env", override=False)
@@ -46,6 +46,11 @@ def create_app(config_object: Any | None = None) -> Flask:
     else:
         app.config.from_object(config_object)
 
+    # Import after configuration to keep extension modules independent of
+    # the application factory and ensure every app receives its own bindings.
+    from backend.app.extensions import init_extensions
+
+    init_extensions(app)
     return app
 
 
