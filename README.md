@@ -1,49 +1,57 @@
-# RailCrowd
+# RailCrowd — Community Train Crowd Intelligence
 
-**Know the crowd. Plan your journey.**
+RailCrowd is a Flask + SQLite application for searching an illustrative train catalog, viewing recent coach-wise community crowd reports, and submitting passenger observations for administrator review.
 
-RailCrowd is a community-powered train crowd intelligence platform. It helps passengers view recent, coach-wise crowd reports and share observations from trains they are travelling on.
+**Transparency:** crowd summaries are community estimates, not official Indian Railways occupancy, live running status, or guaranteed seat availability. Seeded crowd records are labelled demo samples.
 
-> **Data transparency:** Crowd information is based on passenger-submitted reports and is not official Indian Railways occupancy data. The initial development version will use clearly labelled sample train data.
+## Quick start (Windows PowerShell)
 
-## Project status
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python setup.py
+python -m flask --app backend.run run --debug
+```
 
-The repository is being developed incrementally. This first increment establishes the project documentation and root-level configuration. Application code will be added in later increments.
+Open http://127.0.0.1:5000
 
-## Planned technology
+### Local demo accounts
 
-- **Backend:** Python 3 + Flask
-- **Database:** SQLite + Flask-SQLAlchemy
-- **Frontend:** HTML, CSS, JavaScript and Bootstrap
-- **Authentication:** Flask-Login
-- **Testing:** Pytest
-- **Charts:** Chart.js
-- **Maps:** Leaflet with OpenStreetMap
-- **CI:** GitHub Actions
+| Role | Username | Password |
+|---|---|---|
+| Administrator | `admin` | `Admin@12345` |
+| Passenger | `demo` | `Demo@12345` |
 
-## Planned product areas
+Change these before deployment. These are development-only credentials.
 
-1. Public train search and route exploration
-2. Train and coach information
-3. Passenger-submitted crowd reports
-4. Crowd freshness and confidence indicators
-5. Passenger account, saved trains and report history
-6. Admin tools for train data and report moderation
+## Main workflows
 
-## Local setup
+1. Search trains by number, name, or source/destination station.
+2. Open a train to see its route and approved crowd reports grouped by coach.
+3. Register or sign in as a passenger and submit a report.
+4. Reports remain pending until an administrator approves or rejects them.
+5. Approved reports from the last six hours contribute to the crowd estimate. More recent reports receive more weight.
+6. JSON summary: `/trains/<train_number>/crowd.json`.
 
-The application entry point and installation instructions will be added with the backend setup increment.
+## Database
 
-For now, review the project plan in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/FEATURES.md`](docs/FEATURES.md), and [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
+`python setup.py` creates missing tables and inserts demo records idempotently. Flask-Migrate is configured to use `backend/migrations` for schema changes:
 
-## Development principles
+```powershell
+python -m flask --app backend.run db migrate -m "describe schema change"
+python -m flask --app backend.run db upgrade
+```
 
-- Keep changes small, focused and reviewable.
-- Never represent community estimates as official or measured occupancy.
-- Show report timestamps and report counts wherever crowd status is displayed.
-- Do not commit secrets, local databases, virtual environments or generated files.
-- Add tests for important business logic and security-sensitive behavior.
+Review generated migrations before applying them. Do not run `db init` when the existing migrations folder is present.
 
-## License
+## Tests
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+```powershell
+python -m pytest -q
+```
+
+## Limitations
+
+The initial train catalog is illustrative, not a verified official timetable. The app does not provide live train running status, PNR, ticket booking, or official occupancy. Crowd estimates require recent approved community reports; otherwise the UI displays “No recent reports.”
