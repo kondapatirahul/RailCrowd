@@ -9,15 +9,7 @@ from flask import Flask
 
 
 def create_app(config_object: Any | None = None) -> Flask:
-    """Create and configure the Flask application.
-
-    Args:
-        config_object: Optional config class, mapping, or import path. When
-            omitted, ``FLASK_CONFIG`` selects development/testing/production.
-
-    Returns:
-        A configured Flask application instance with extensions initialized.
-    """
+    """Create and configure the Flask application."""
     project_root = Path(__file__).resolve().parents[2]
     load_dotenv(dotenv_path=project_root / ".env", override=False)
 
@@ -46,11 +38,14 @@ def create_app(config_object: Any | None = None) -> Flask:
     else:
         app.config.from_object(config_object)
 
-    # Import after configuration to keep extension modules independent of
-    # the application factory and ensure every app receives its own bindings.
-    from backend.app.extensions import init_extensions
+    from backend.app.database import configure_database, register_database_events
+    from backend.app.extensions import db, init_extensions
 
+    # SQLAlchemy reads engine options during init_app(), so prepare the
+    # SQLite configuration before binding the shared extension instance.
+    configure_database(app)
     init_extensions(app)
+    register_database_events(app, db)
     return app
 
 
