@@ -22,27 +22,17 @@ Then start the development server:
 python -m backend.run
 ```
 
-Open `http://127.0.0.1:5000/`. Until public routes are added in a later
-increment, the root URL is expected to return Flask's standard 404 response.
+## Database
 
-## Configuration and extensions
+The default database is SQLite. Its file is stored in Flask's `instance/`
+directory, which is intended for local runtime data and is excluded from Git
+except for its `.gitkeep` placeholder. SQLite connections enable foreign-key
+enforcement, a 30-second busy timeout, and WAL mode for file-backed databases.
 
-`FLASK_CONFIG` selects `development`, `testing`, or `production`. The default
-is `development`. The application factory loads the root `.env` file without
-overriding variables already supplied by the operating system.
+The database layer does not automatically create tables. Schema changes must
+be introduced through Flask-Migrate migrations in the next setup steps. Do
+not call `db.create_all()` as a substitute for migrations in application code.
 
-Shared extension instances are defined in `app/extensions.py` and initialized
-inside `create_app()`:
-
-- `db`: Flask-SQLAlchemy database integration
-- `migrate`: Flask-Migrate schema migration integration
-- `login_manager`: Flask-Login session and user-loading integration
-- `csrf`: Flask-WTF CSRF protection
-
-Import these shared instances from `backend.app.extensions`; do not create a
-second SQLAlchemy or LoginManager instance in individual modules. Models and
-migration commands are introduced in later increments.
-
-Production disables debug mode, enables secure session cookies, and requires
-a `SECRET_KEY` of at least 32 characters. Never commit `.env` or production
-credentials.
+For local inspection, the configured SQLAlchemy URI is available in
+`app.config["SQLALCHEMY_DATABASE_URI"]`; do not print it in public logs because
+non-SQLite connection strings may contain credentials.
