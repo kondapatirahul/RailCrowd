@@ -1,0 +1,28 @@
+/* Route-aware crowd report controls. Existing report styling remains intact. */
+.rc-route-report .rc-route-help {
+  margin: 0.85rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+.rc-route-report .form-select:focus,
+.rc-route-report .form-control:focus {
+  border-color: #647fe8;
+  box-shadow: 0 0 0 0.2rem rgba(100, 127, 232, 0.14);
+}
+.rc-route-report .rc-route-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+.rc-route-report .rc-route-footer span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+@media (max-width: 575.98px) {
+  .rc-route-report .rc-route-footer .btn {
+    width: 100%;
+  }
+}
