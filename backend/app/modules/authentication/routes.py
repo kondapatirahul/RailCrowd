@@ -1,13 +1,8 @@
+"""Registration, login, and logout routes."""
+
 from urllib.parse import urlsplit
 
-from flask import (
-    Blueprint,
-    flash,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -35,30 +30,48 @@ def _safe_local_redirect(target):
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("authentication.login"))
+        return redirect(url_for("passenger.dashboard"))
 
     form = RegistrationForm()
     if form.validate_on_submit():
+        username = User.normalize_username(form.username.data)
+        email = User.normalize_email(form.email.data)
+        existing_user = db.session.execute(
+            db.select(User).where(or_(User.username == username, User.email == email))
+        ).scalar_one_or_none()
+
+        if existing_user:
+            if existing_user.username == username:
+                form.username.errors.append("That username is already in use.")
+            if existing_user.email == email:
+                form.email.errors.append("That email address is already registered.")
+            return render_template("auth/register.html", form=form), 409
+
         user = User(
+            username=username,
+            email=email,
             full_name=form.full_name.data.strip(),
-            username=form.username.data.strip().lower(),
-            email=form.email.data.strip().lower(),
             role="passenger",
         )
         user.set_password(form.password.data)
+        db.session.add(user)
 
         try:
-            db.session.add(user)
             db.session.commit()
         except IntegrityError:
             db.session.rollback()
             flash(
-                "That username or email is already registered. Please try another.",
-                "danger",
+                "An account with those details already exists. Please sign in "
+                "or use different details.",
+                "warning",
             )
-        else:
-            flash("Your passenger account has been created. You can now sign in.", "success")
-            return redirect(url_for("authentication.login"))
+            return render_template("auth/register.html", form=form), 409
+
+        flash(
+            "Your RailCrowd passenger account has been created successfully.",
+            "success",
+        )
+        return redirect(url_for("authentication.login"))
 
     return render_template("auth/register.html", form=form)
 
@@ -66,7 +79,7 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(_safe_local_redirect(request.args.get("next")) or "/")
+        return redirect(url_for("passenger.dashboard"))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -83,15 +96,13 @@ def login():
             login_user(user, remember=form.remember_me.data, fresh=True)
             flash(f"Welcome back, {user.full_name}.", "success")
             destination = _safe_local_redirect(request.args.get("next"))
-            return redirect(destination or url_for("authentication.login", authenticated=1))
+            return redirect(destination or url_for("passenger.dashboard"))
 
     return render_template("auth/login.html", form=form)
 
 
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
-    from flask_login import login_required
-
     if not current_user.is_authenticated:
         return redirect(url_for("authentication.login"))
 
