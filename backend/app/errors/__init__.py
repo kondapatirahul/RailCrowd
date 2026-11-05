@@ -1,1 +1,5 @@
-"""Application error handlers and custom exceptions."""
+"""Application error handling exports."""
+
+from backend.app.errors.handlers import register_error_handlers
+
+__all__ = ["register_error_handlers"]

@@ -23,6 +23,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{DEFAULT_DATABASE_PATH.as_posix()}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
@@ -47,6 +48,9 @@ class Config:
         app.config["MAX_CONTENT_LENGTH"] = int(
             os.getenv("MAX_CONTENT_LENGTH", str(app.config["MAX_CONTENT_LENGTH"]))
         )
+        app.config["LOG_LEVEL"] = os.getenv(
+            "LOG_LEVEL", app.config.get("LOG_LEVEL", "INFO")
+        )
 
 
 class DevelopmentConfig(Config):
@@ -54,11 +58,6 @@ class DevelopmentConfig(Config):
 
     DEBUG = True
     SECRET_KEY = "railcrowd-development-key-change-before-deploy"
-
-    @classmethod
-    def apply_environment(cls, app) -> None:
-        super().apply_environment(app)
-        app.config["DEBUG"] = _env_bool("FLASK_DEBUG", True)
 
 
 class TestingConfig(Config):
@@ -69,6 +68,7 @@ class TestingConfig(Config):
     SECRET_KEY = "railcrowd-test-only-secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    LOG_LEVEL = "WARNING"
 
 
 class ProductionConfig(Config):
