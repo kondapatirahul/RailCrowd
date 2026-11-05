@@ -4,35 +4,24 @@ The backend is a modular Flask application. Python code lives in `backend/`,
 while server-rendered templates and static assets live in the top-level
 `frontend/` directory.
 
-## Local setup
+## Database and models
 
-From the repository root:
+All ORM models must use the shared `db` extension from
+`backend.app.extensions`. The extension is configured with the shared
+`DeclarativeBase` in `backend.app.models.base`, which provides predictable
+constraint naming for database migrations.
 
-```bash
-python -m venv .venv
-# Windows PowerShell: .venv\\Scripts\\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-python -m pip install -r requirements.txt
-```
+Reusable conventions:
 
-Copy `.env.example` to `.env` in the repository root and adjust the values.
-Then start the development server:
+- `Base`: common declarative model base and metadata.
+- `TimestampMixin`: UTC-oriented `created_at` and `updated_at` columns.
+- `utc_now()`: aware UTC timestamp helper for application code.
 
-```bash
-python -m backend.run
-```
+When adding a model, define it in its own module under `backend/app/models/`
+and import it from `backend/app/models/__init__.py` so migration autogeneration
+can discover it. Use explicit table names, indexes, unique constraints, and
+foreign-key delete behavior. Avoid defining duplicate SQLAlchemy `Table`
+objects or creating a second declarative base.
 
-## Database
-
-The default database is SQLite. Its file is stored in Flask's `instance/`
-directory, which is intended for local runtime data and is excluded from Git
-except for its `.gitkeep` placeholder. SQLite connections enable foreign-key
-enforcement, a 30-second busy timeout, and WAL mode for file-backed databases.
-
-The database layer does not automatically create tables. Schema changes must
-be introduced through Flask-Migrate migrations in the next setup steps. Do
-not call `db.create_all()` as a substitute for migrations in application code.
-
-For local inspection, the configured SQLAlchemy URI is available in
-`app.config["SQLALCHEMY_DATABASE_URI"]`; do not print it in public logs because
-non-SQLite connection strings may contain credentials.
+SQLite schema changes are managed through Flask-Migrate. Do not use
+`db.create_all()` as a replacement for migration files.
