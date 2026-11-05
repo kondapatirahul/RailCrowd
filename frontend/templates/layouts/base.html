@@ -15,9 +15,12 @@
         <a class="navbar-brand fw-bold" href="/">RailCrowd</a>
         <div class="ms-auto d-flex align-items-center gap-2">
             {% if current_user.is_authenticated %}
-                <span class="small text-muted d-none d-md-inline">
-                    {{ current_user.full_name }}
-                </span>
+                {% if current_user.is_admin %}
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.report_queue') }}">Moderation</a>
+                {% else %}
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('passenger.dashboard') }}">Dashboard</a>
+                {% endif %}
+                <span class="small text-muted d-none d-md-inline">{{ current_user.full_name }}</span>
                 <form method="post" action="{{ url_for('authentication.logout') }}" class="m-0">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-outline-secondary btn-sm" type="submit">Sign out</button>

@@ -43,6 +43,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.errors import register_error_handlers
     from backend.app.extensions import db, init_extensions
     from backend.app.modules.api import health_bp
+    from backend.app.modules.admin import admin_bp
     from backend.app.modules.authentication import auth_bp
     from backend.app.modules.crowd import contributions_bp, crowd_bp
     from backend.app.modules.passenger import passenger_bp
@@ -58,6 +59,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     app.register_blueprint(passenger_bp)
     app.register_blueprint(crowd_bp)
     app.register_blueprint(contributions_bp)
+    app.register_blueprint(admin_bp)
 
     # Import mapped models after db initialization for Flask-Migrate discovery.
     import backend.app.models.user  # noqa: F401

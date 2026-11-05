@@ -37,6 +37,10 @@ def load_user(user_id):
 def init_extensions(app):
     """Attach shared Flask extensions to an application instance."""
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(
+    app,
+    db,
+    directory=app.config.get("MIGRATIONS_DIR", "backend/migrations")
+)
     login_manager.init_app(app)
     csrf.init_app(app)
