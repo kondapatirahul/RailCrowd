@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% block title %}Notifications | RailCrowd{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">{% endblock %}
+{% block content %}
+<section class="rc-notifications">
+  <header class="rc-notification-heading">
+    <div><p class="rc-eyebrow">PASSENGER CENTRE</p><h1>Notifications</h1><p>Updates about your reports and saved trains.</p></div>
+    {% if unread_count %}<form method="post" action="{{ url_for('notifications.mark_all_read') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-outline-primary" type="submit">Mark all read</button></form>{% endif %}
+  </header>
+  {% if notifications %}
+    <div class="rc-notification-list">
+    {% for item in notifications %}
+      <article class="rc-notification-card {{ 'is-unread' if not item.is_read else '' }}">
+        <div class="rc-notification-indicator" aria-hidden="true"></div>
+        <div class="rc-notification-copy"><div class="rc-notification-meta"><span>{{ item.notification_type.replace('_', ' ')|title }}</span><time>{{ item.created_at.strftime('%d %b %Y, %I:%M %p') if item.created_at else '' }}</time></div><h2>{{ item.title }}</h2><p>{{ item.message }}</p><a href="{{ item.target_url }}">View details</a></div>
+        {% if not item.is_read %}<form method="post" action="{{ url_for('notifications.mark_read', notification_id=item.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-light" type="submit">Mark read</button></form>{% endif %}
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}<div class="rc-notification-empty"><h2>You're all caught up</h2><p>New report updates and crowd-change alerts will appear here.</p></div>{% endif %}
+  <nav class="rc-notification-links"><a href="{{ url_for('notifications.saved_trains') }}">Saved trains</a><a href="{{ url_for('notifications.preferences') }}">Notification preferences</a></nav>
+</section>
+{% endblock %}

@@ -20,6 +20,7 @@
                     <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.dashboard') }}">Admin</a>
                 {% else %}
                     <a class="btn btn-outline-primary btn-sm" href="{{ url_for('passenger.dashboard') }}">Dashboard</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('notifications.inbox') }}">Notifications</a>
                 {% endif %}
                 <span class="small text-muted d-none d-md-inline">{{ current_user.full_name }}</span>
                 <form method="post" action="{{ url_for('authentication.logout') }}" class="m-0">

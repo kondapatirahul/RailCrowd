@@ -9,6 +9,7 @@ from backend.app.models.user import User
 from backend.app.models.train import Train
 from backend.app.modules.admin.forms import ModerationForm
 from backend.app.modules.admin.services import get_moderation_counts
+from backend.app.modules.notifications.service import notify_report_moderation
 admin_bp=Blueprint("admin",__name__,url_prefix="/admin")
 VALID_FILTERS={"pending","approved","rejected","all"}
 def _require_admin():
@@ -35,11 +36,12 @@ def moderate_report(report_id):
     if report is None: abort(404)
     if report.status!="pending":
         flash("This report has already been reviewed.","warning"); return redirect(url_for("admin.report_queue",status="all"),code=303)
-    form=ModerationForm()
+    form=ModerationForm(prefix=f"report-{report.id}")
     if not form.validate_on_submit():
         flash("Please choose a valid review action.","danger"); return redirect(url_for("admin.report_queue",status="pending"),code=303)
     report.status="approved" if form.action.data=="approve" else "rejected"
     report.moderated_by_id=current_user.id; report.moderated_at=datetime.now(timezone.utc)
     report.moderation_note=(form.moderation_note.data or "").strip() or None
+    notify_report_moderation(report)
     db.session.commit(); flash(f"Report #{report.id} was {report.status}.","success")
     return redirect(url_for("admin.report_queue",status="pending"),code=303)

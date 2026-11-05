@@ -1,0 +1,8 @@
+{% extends "layouts/base.html" %}
+{% block title %}Saved Trains | RailCrowd{% endblock %}
+{% block content %}
+<section class="container py-3">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3"><div><p class="text-primary fw-semibold mb-1">PASSENGER TOOLS</p><h1>Saved trains</h1><p class="text-muted">Your saved train list.</p></div><a class="btn btn-outline-secondary" href="{{ url_for('notifications.inbox') }}">Notifications</a></div>
+  {% if trains %}<div class="list-group mt-4">{% for train in trains %}<div class="list-group-item d-flex justify-content-between align-items-center gap-3"><div><strong>{{ train.train_number }} · {{ train.train_name }}</strong><div class="small text-muted">Saved {{ train.created_at.strftime('%d %b %Y') if train.created_at else '' }}</div><a href="{{ url_for('trains.detail', train_number=train.train_number) }}">View train</a></div><form method="post" action="{{ url_for('notifications.remove_saved_train', saved_train_id=train.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger" type="submit">Remove</button></form></div>{% endfor %}</div>{% else %}<p class="text-muted mt-4">No saved trains yet. Find a train and select Save train.</p>{% endif %}
+</section>
+{% endblock %}
