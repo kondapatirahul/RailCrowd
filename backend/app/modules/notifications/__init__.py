@@ -1,0 +1,1 @@
+"""Passenger notification routes."""
