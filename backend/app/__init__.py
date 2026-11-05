@@ -48,6 +48,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.modules.crowd import contributions_bp, crowd_bp
     from backend.app.modules.passenger import passenger_bp
     from backend.app.utils.logging_config import configure_logging
+    from backend.app.modules.trains import trains_bp
 
     configure_logging(app)
     configure_database(app)
@@ -60,10 +61,13 @@ def create_app(config_object: Any | None = None) -> Flask:
     app.register_blueprint(crowd_bp)
     app.register_blueprint(contributions_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(trains_bp, url_prefix="/trains")
 
     # Import mapped models after db initialization for Flask-Migrate discovery.
     import backend.app.models.user  # noqa: F401
     import backend.app.models.crowd_report  # noqa: F401
+    import backend.app.models.station  # noqa: F401
+    import backend.app.models.train  # noqa: F401
 
     return app
 
