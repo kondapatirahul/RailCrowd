@@ -44,6 +44,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.extensions import db, init_extensions
     from backend.app.modules.api import health_bp
     from backend.app.modules.authentication import auth_bp
+    from backend.app.modules.crowd import contributions_bp, crowd_bp
     from backend.app.modules.passenger import passenger_bp
     from backend.app.utils.logging_config import configure_logging
 
@@ -55,9 +56,12 @@ def create_app(config_object: Any | None = None) -> Flask:
     app.register_blueprint(health_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(passenger_bp)
+    app.register_blueprint(crowd_bp)
+    app.register_blueprint(contributions_bp)
 
-    # Load mapped models after db initialization so Flask-Migrate discovers them.
+    # Import mapped models after db initialization for Flask-Migrate discovery.
     import backend.app.models.user  # noqa: F401
+    import backend.app.models.crowd_report  # noqa: F401
 
     return app
 
