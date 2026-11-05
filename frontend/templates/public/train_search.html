@@ -1,0 +1,54 @@
+{% extends "layouts/base.html" %}
+{% block title %}Find Trains | RailCrowd{% endblock %}
+{% block content %}
+<section class="rc-train-page">
+  <div class="rc-train-hero">
+    <span class="rc-eyebrow">RAILCROWD TRAIN DIRECTORY</span>
+    <h1>Find your train.<br><span>Plan with better insight.</span></h1>
+    <p>Search the train catalog by train number, name, or station.</p>
+    <form class="rc-search-form" method="get" action="{{ url_for('trains.search') }}">
+      <label class="visually-hidden" for="train-query">Train or station</label>
+      <input id="train-query" name="q" value="{{ query }}" maxlength="120"
+             placeholder="Try 12727, Godavari Express, or Vijayawada" autocomplete="off">
+      <button type="submit">Search trains</button>
+    </form>
+  </div>
+
+  <div class="rc-results-heading">
+    <div>
+      <h2>{% if searched %}Search results{% else %}Available trains{% endif %}</h2>
+      <p>{{ trains|length }} train(s) shown · Catalog data may be incomplete.</p>
+    </div>
+  </div>
+
+  {% if trains %}
+    <div class="rc-train-list">
+      {% for train in trains %}
+      <article class="rc-train-card">
+        <div class="rc-train-number">{{ train.number }}</div>
+        <div class="rc-train-main">
+          <h3><a href="{{ url_for('trains.detail', train_number=train.number) }}">{{ train.name }}</a></h3>
+          <div class="rc-train-route">
+            <span>{{ train.source_station.name }} <small>({{ train.source_station.code }})</small></span>
+            <span class="rc-route-line" aria-hidden="true">────────→</span>
+            <span>{{ train.destination_station.name }} <small>({{ train.destination_station.code }})</small></span>
+          </div>
+          <div class="rc-train-meta">
+            {% if train.train_type %}<span>{{ train.train_type }}</span>{% endif %}
+            {% if train.departure_time %}<span>Departs {{ train.departure_time }}</span>{% endif %}
+            {% if train.arrival_time %}<span>Arrives {{ train.arrival_time }}</span>{% endif %}
+          </div>
+        </div>
+        <a class="rc-view-train" href="{{ url_for('trains.detail', train_number=train.number) }}">View details →</a>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="rc-empty-state">
+      <h3>{% if searched %}No matching trains found{% else %}Train catalog is being prepared{% endif %}</h3>
+      <p>{% if searched %}Check the spelling or try a train number or station code.{% else %}Train records will appear here once added by an administrator or through approved catalog imports.{% endif %}</p>
+    </div>
+  {% endif %}
+  <p class="rc-data-note">RailCrowd is a community information platform. Catalog details and crowd reports are not official railway data.</p>
+</section>
+{% endblock %}
