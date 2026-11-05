@@ -1,0 +1,133 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Passenger Dashboard | RailCrowd{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/passenger_dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="rc-dashboard">
+    {% include "components/passenger_sidebar.html" %}
+
+    <section class="rc-dashboard-main">
+        <div class="rc-page-heading">
+            <div>
+                <p class="rc-eyebrow">PASSENGER WORKSPACE</p>
+                <h1>Good to see you, {{ dashboard.full_name.split(' ')[0] }}.</h1>
+                <p class="rc-muted">Your RailCrowd passenger overview.</p>
+            </div>
+            <span class="rc-account-chip">
+                <span class="rc-status-dot"></span>
+                {{ "Active account" if dashboard.is_enabled else "Disabled account" }}
+            </span>
+        </div>
+
+        <div class="rc-welcome-panel">
+            <div>
+                <span class="rc-welcome-label">WELCOME TO RAILCROWD</span>
+                <h2>Make every journey more informed.</h2>
+                <p>
+                    Passenger contributions help other travellers understand
+                    reported crowd conditions before boarding.
+                </p>
+            </div>
+            <div class="rc-welcome-art" aria-hidden="true">
+                <span class="rc-art-track"></span>
+                <span class="rc-art-circle">RC</span>
+            </div>
+        </div>
+
+        <div class="rc-section-heading">
+            <div>
+                <h2>Your account at a glance</h2>
+                <p class="rc-muted">A summary of your RailCrowd account.</p>
+            </div>
+        </div>
+
+        <div class="rc-stat-grid">
+            <article class="rc-stat-card">
+                <div class="rc-stat-icon rc-icon-blue">♙</div>
+                <p class="rc-stat-label">Account type</p>
+                <p class="rc-stat-value">Passenger</p>
+                <p class="rc-stat-foot">Your current role</p>
+            </article>
+            <article class="rc-stat-card">
+                <div class="rc-stat-icon rc-icon-green">✓</div>
+                <p class="rc-stat-label">Account status</p>
+                <p class="rc-stat-value">{{ "Active" if dashboard.is_enabled else "Disabled" }}</p>
+                <p class="rc-stat-foot">Sign-in eligibility</p>
+            </article>
+            <article class="rc-stat-card">
+                <div class="rc-stat-icon rc-icon-purple">@</div>
+                <p class="rc-stat-label">Email verification</p>
+                <p class="rc-stat-value">{{ "Verified" if dashboard.is_email_verified else "Pending" }}</p>
+                <p class="rc-stat-foot">Email address status</p>
+            </article>
+            <article class="rc-stat-card">
+                <div class="rc-stat-icon rc-icon-orange">↗</div>
+                <p class="rc-stat-label">Contributions</p>
+                <p class="rc-stat-value">Not available</p>
+                <p class="rc-stat-foot">Reporting feature is upcoming</p>
+            </article>
+        </div>
+
+        <div class="rc-content-grid">
+            <section class="rc-panel">
+                <div class="rc-panel-heading">
+                    <div>
+                        <h2>Account details</h2>
+                        <p class="rc-muted">Your registered passenger information.</p>
+                    </div>
+                    <span class="rc-panel-symbol">♙</span>
+                </div>
+                <dl class="rc-detail-list">
+                    <div><dt>Full name</dt><dd>{{ dashboard.full_name }}</dd></div>
+                    <div><dt>Username</dt><dd>@{{ dashboard.username }}</dd></div>
+                    <div><dt>Email address</dt><dd>{{ dashboard.email }}</dd></div>
+                    <div><dt>Account role</dt><dd>Passenger</dd></div>
+                    <div>
+                        <dt>Member since</dt>
+                        <dd>
+                            {% if dashboard.created_at %}
+                                {{ dashboard.created_at.strftime('%d %b %Y') }}
+                            {% else %}
+                                Date unavailable
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="rc-panel">
+                <div class="rc-panel-heading">
+                    <div>
+                        <h2>Passenger tools</h2>
+                        <p class="rc-muted">Features being prepared for you.</p>
+                    </div>
+                    <span class="rc-panel-symbol">✦</span>
+                </div>
+                <div class="rc-action-list">
+                    {% for action in dashboard.quick_actions %}
+                    <div class="rc-action-item">
+                        <div>
+                            <h3>{{ action.title }}</h3>
+                            <p>{{ action.description }}</p>
+                        </div>
+                        <span class="rc-coming-soon">{{ action.status }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <div class="rc-info-banner">
+            <span class="rc-info-mark">i</span>
+            <p>
+                Crowd information on RailCrowd will be based on community
+                submissions. It is not official railway occupancy data.
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}

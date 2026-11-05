@@ -43,6 +43,8 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.errors import register_error_handlers
     from backend.app.extensions import db, init_extensions
     from backend.app.modules.api import health_bp
+    from backend.app.modules.authentication import auth_bp
+    from backend.app.modules.passenger import passenger_bp
     from backend.app.utils.logging_config import configure_logging
 
     configure_logging(app)
@@ -51,9 +53,10 @@ def create_app(config_object: Any | None = None) -> Flask:
     register_database_events(app, db)
     register_error_handlers(app)
     app.register_blueprint(health_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(passenger_bp)
 
-    # Load mapped models after db initialization to avoid circular imports
-    # and ensure Flask-Migrate discovers all registered model metadata.
+    # Load mapped models after db initialization so Flask-Migrate discovers them.
     import backend.app.models.user  # noqa: F401
 
     return app
