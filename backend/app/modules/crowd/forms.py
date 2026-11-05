@@ -1,4 +1,4 @@
-"""Validation for passenger crowd reports, including catalog route choices."""
+"""Forms for passenger crowd reporting and report feedback."""
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField, TextAreaField
@@ -29,21 +29,9 @@ CROWD_LEVEL_CHOICES = [
 class CrowdReportForm(FlaskForm):
     """A report form whose train and station choices come from the catalog."""
 
-    train_number = SelectField(
-        "Train",
-        choices=[],
-        validators=[DataRequired()],
-    )
-    from_station = SelectField(
-        "Boarding station",
-        choices=[],
-        validators=[DataRequired()],
-    )
-    to_station = SelectField(
-        "Destination station",
-        choices=[],
-        validators=[DataRequired()],
-    )
+    train_number = SelectField("Train", choices=[], validators=[DataRequired()])
+    from_station = SelectField("Boarding station", choices=[], validators=[DataRequired()])
+    to_station = SelectField("Destination station", choices=[], validators=[DataRequired()])
     coach_type = SelectField("Coach", choices=COACH_CHOICES, validators=[DataRequired()])
     crowd_level = SelectField(
         "Observed crowd level",
@@ -68,3 +56,17 @@ class CrowdReportForm(FlaskForm):
     def validate_to_station(self, field):
         if field.data and self.from_station.data and field.data == self.from_station.data:
             raise ValidationError("Destination must be different from the boarding station.")
+
+
+class ReportFeedbackForm(FlaskForm):
+    """One confirmation or dispute signal for a report."""
+
+    vote_type = SelectField(
+        "Feedback",
+        choices=[
+            ("confirm", "I can confirm this report"),
+            ("flag", "This report does not match what I observed"),
+        ],
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Send feedback")
