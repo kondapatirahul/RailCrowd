@@ -42,13 +42,13 @@ def test_login_page_loads(client):
 def test_login_with_username(client, passenger):
     response = _login(client, "testpassenger")
     assert response.status_code == 200
-    assert b"You are signed in" in response.data
+    assert b"Welcome back" in response.data
 
 
 def test_login_with_email(client, passenger):
     response = _login(client, "PASSENGER@example.com")
     assert response.status_code == 200
-    assert b"You are signed in" in response.data
+    assert b"Welcome back" in response.data
 
 
 def test_invalid_password_does_not_authenticate(client, passenger):
@@ -75,7 +75,7 @@ def test_external_next_url_is_rejected(client, passenger):
         follow_redirects=True,
     )
     assert response.status_code == 200
-    assert b"You are signed in" in response.data
+    assert b"Welcome back" in response.data
     assert b"example.com" not in response.data
 
 

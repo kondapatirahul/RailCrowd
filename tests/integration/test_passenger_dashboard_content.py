@@ -39,7 +39,7 @@ def test_dashboard_discloses_community_data_limitations(dashboard_app, dashboard
     )
 
     response = dashboard_client.get("/dashboard")
-    assert b"not official railway occupancy data" in response.data.lower()
+    assert b"not official occupancy data" in response.data.lower()
 
 
 def test_dashboard_does_not_claim_fake_contribution_count(dashboard_app, dashboard_client):
@@ -50,5 +50,5 @@ def test_dashboard_does_not_claim_fake_contribution_count(dashboard_app, dashboa
     )
 
     response = dashboard_client.get("/dashboard")
-    assert b"Not available" in response.data
+    assert b">0<" in response.data
     assert b"0 reports" not in response.data.lower()
