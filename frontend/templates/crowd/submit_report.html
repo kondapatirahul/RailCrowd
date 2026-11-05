@@ -3,59 +3,63 @@
 {% block title %}Report Train Crowd | RailCrowd{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/crowd_reports.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/route_aware_reporting.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="rc-report-shell">
+<div class="rc-report-shell rc-route-report">
     <div class="rc-report-heading">
         <div>
             <p class="rc-report-eyebrow">COMMUNITY CONTRIBUTION</p>
             <h1>Report train crowd</h1>
-            <p>Share what you are seeing so fellow passengers can make better-informed journey decisions.</p>
+            <p>Select a train and the exact route section where you observed the crowd.</p>
         </div>
         <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('contributions.my_reports') }}">My contributions</a>
     </div>
 
     <div class="rc-report-notice">
         <strong>Community report, not official occupancy.</strong>
-        Your submission is marked Pending until it has been reviewed. Do not include personal or sensitive information.
+        Your submission remains Pending until reviewed. Do not include personal or sensitive information.
     </div>
 
+    {% if not trains %}
+    <div class="alert alert-warning" role="status">
+        No active trains are available in the catalog yet. Please try again after the catalog is populated.
+    </div>
+    {% else %}
     <div class="rc-report-card">
-        <form method="post" novalidate>
+        <form method="post" novalidate id="rc-route-report-form"
+              data-route-url-template="{{ url_for('crowd.train_route_options', train_number='__TRAIN__') }}">
             {{ form.hidden_tag() }}
             <div class="rc-form-section">
-                <h2>Train and journey</h2>
-                <p>Enter the train and the section of the journey where you observed the crowd.</p>
+                <h2>Train and journey segment</h2>
+                <p>Station choices are restricted to the selected train's published catalog route.</p>
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-12">
                         {{ form.train_number.label(class="form-label") }}
-                        {{ form.train_number(class="form-control", placeholder="e.g. 12727", inputmode="numeric") }}
+                        {{ form.train_number(class="form-select", id="rc-train-number") }}
                         {% for error in form.train_number.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    </div>
-                    <div class="col-md-8">
-                        {{ form.train_name.label(class="form-label") }}
-                        {{ form.train_name(class="form-control", placeholder="e.g. Godavari Express") }}
-                        {% for error in form.train_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                     <div class="col-md-6">
                         {{ form.from_station.label(class="form-label") }}
-                        {{ form.from_station(class="form-control", placeholder="e.g. Visakhapatnam") }}
+                        {{ form.from_station(class="form-select", id="rc-from-station") }}
                         {% for error in form.from_station.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                     <div class="col-md-6">
                         {{ form.to_station.label(class="form-label") }}
-                        {{ form.to_station(class="form-control", placeholder="e.g. Vijayawada") }}
+                        {{ form.to_station(class="form-select", id="rc-to-station") }}
                         {% for error in form.to_station.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                 </div>
+                <p class="rc-route-help" id="rc-route-help" aria-live="polite">
+                    {% if selected_train %}{{ selected_train.name }} · {{ route_stations|length }} route station(s){% else %}Choose a train to load its route.{% endif %}
+                </p>
             </div>
 
             <hr class="my-4">
 
             <div class="rc-form-section">
                 <h2>Coach and crowd level</h2>
-                <p>Choose the coach type and the crowd level you observed.</p>
                 <div class="row g-3">
                     <div class="col-md-6">
                         {{ form.coach_type.label(class="form-label") }}
@@ -69,18 +73,20 @@
                     </div>
                     <div class="col-12">
                         {{ form.notes.label(class="form-label") }}
-                        {{ form.notes(class="form-control", rows="4", placeholder="Optional: mention queue conditions, standing room, or other useful observations (maximum 500 characters).") }}
-                        <div class="form-text">Do not enter passenger names, phone numbers, or other personal details.</div>
+                        {{ form.notes(class="form-control", rows="4", maxlength="500", placeholder="Optional: queues, standing room, or useful coach observations.") }}
+                        <div class="form-text">Maximum 500 characters. Do not include passenger names or contact details.</div>
                         {% for error in form.notes.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                 </div>
             </div>
 
-            <div class="rc-form-footer">
-                <span>Submitted reports begin with Pending status.</span>
+            <div class="rc-report-footer rc-route-footer">
+                <span>New reports are submitted for moderation.</span>
                 <button type="submit" class="btn btn-primary px-4">{{ form.submit.label.text }}</button>
             </div>
         </form>
     </div>
+    {% endif %}
 </div>
+<script src="{{ url_for('static', filename='js/route_aware_reporting.js') }}" defer></script>
 {% endblock %}
