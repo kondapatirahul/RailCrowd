@@ -1,0 +1,32 @@
+{% extends "layouts/base.html" %}
+{% block title %}Community Leaderboard | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/passenger_reputation.css') }}">
+{% endblock %}
+{% block content %}
+<main class="rc-reputation-page">
+  <header class="rc-reputation-header">
+    <div><span class="rc-reputation-eyebrow">COMMUNITY CONTRIBUTIONS</span><h1>Passenger leaderboard</h1><p>Ranked by approved contributions and community feedback.</p></div>
+    {% if current_user.is_authenticated and current_user.role == "passenger" %}
+    <a class="btn btn-outline-primary" href="{{ url_for('passenger.reputation') }}">My reputation</a>
+    {% endif %}
+  </header>
+  <section class="rc-reputation-leaderboard">
+    {% if leaderboard %}
+    <ol class="rc-leaderboard-list rc-leaderboard-full">
+      {% for item in leaderboard %}
+      <li>
+        <span class="rc-leaderboard-rank">{{ loop.index }}</span>
+        <span class="rc-leaderboard-name">{{ item.display_name }}<small>{{ item.approved_reports }} approved report(s) · {{ item.confirmations }} confirmations</small></span>
+        <span class="rc-leaderboard-tier">{{ item.trust_level }}</span>
+        <strong>{{ item.score }}</strong>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="rc-reputation-empty">The leaderboard will appear after passengers have approved contributions.</p>
+    {% endif %}
+  </section>
+  <p class="rc-reputation-disclaimer">Scores are derived from RailCrowd community activity. They do not certify passenger identity or official railway information.</p>
+</main>
+{% endblock %}
