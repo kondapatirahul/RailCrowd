@@ -1,0 +1,105 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Crowd Report Moderation | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_moderation.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="rc-admin-shell">
+    <header class="rc-admin-heading">
+        <div>
+            <p class="rc-admin-eyebrow">ADMINISTRATION / COMMUNITY DATA</p>
+            <h1>Crowd report moderation</h1>
+            <p>Review passenger submissions before they can be considered for public crowd information.</p>
+        </div>
+        <span class="rc-admin-role">Administrator</span>
+    </header>
+
+    <section class="rc-admin-stats" aria-label="Moderation summary">
+        <article><span>All reports</span><strong>{{ counts.total }}</strong></article>
+        <article class="rc-stat-pending"><span>Pending review</span><strong>{{ counts.pending }}</strong></article>
+        <article class="rc-stat-approved"><span>Approved</span><strong>{{ counts.approved }}</strong></article>
+        <article class="rc-stat-rejected"><span>Rejected</span><strong>{{ counts.rejected }}</strong></article>
+    </section>
+
+    <section class="rc-admin-panel">
+        <div class="rc-admin-panel-heading">
+            <div>
+                <h2>Submissions</h2>
+                <p>Latest 100 reports, ordered by submission date.</p>
+            </div>
+            <nav class="rc-filter-tabs" aria-label="Filter reports">
+                {% for value, label in [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('all', 'All')] %}
+                    <a class="{{ 'active' if status_filter == value else '' }}"
+                       href="{{ url_for('admin.report_queue', status=value) }}">{{ label }}</a>
+                {% endfor %}
+            </nav>
+        </div>
+
+        {% if reports %}
+            <div class="rc-admin-report-list">
+                {% for report in reports %}
+                <article class="rc-admin-report">
+                    <div class="rc-admin-report-header">
+                        <div>
+                            <span class="rc-admin-train-number">{{ report.train_number }}</span>
+                            <h3>{{ report.train_name }}</h3>
+                        </div>
+                        <span class="rc-admin-status rc-admin-status-{{ report.status }}">{{ report.status|title }}</span>
+                    </div>
+
+                    <div class="rc-admin-route">
+                        <span>{{ report.from_station }}</span>
+                        <span aria-hidden="true">→</span>
+                        <span>{{ report.to_station }}</span>
+                    </div>
+
+                    <div class="rc-admin-meta">
+                        <span><b>Coach</b> {{ report.coach_type }}</span>
+                        <span><b>Crowd level</b> {{ report.crowd_level }}</span>
+                        <span><b>Passenger ID</b> {{ report.user_id }}</span>
+                        <span><b>Submitted</b> {{ report.created_at.strftime('%d %b %Y, %I:%M %p') if report.created_at else 'Unavailable' }}</span>
+                    </div>
+
+                    {% if report.notes %}
+                        <div class="rc-admin-observation"><b>Passenger observation:</b> {{ report.notes }}</div>
+                    {% endif %}
+
+                    {% if report.status != 'pending' %}
+                        <div class="rc-admin-audit">
+                            Reviewed {{ report.moderated_at.strftime('%d %b %Y, %I:%M %p') if report.moderated_at else 'date unavailable' }}
+                            {% if report.moderated_by_id %} · Admin ID {{ report.moderated_by_id }}{% endif %}
+                            {% if report.moderation_note %}<p>{{ report.moderation_note }}</p>{% endif %}
+                        </div>
+                    {% else %}
+                        <form class="rc-moderation-form" method="post"
+                              action="{{ url_for('admin.moderate_report', report_id=report.id) }}">
+                            {{ forms[report.id].hidden_tag() }}
+                            <div class="rc-moderation-note">
+                                {{ forms[report.id].moderation_note.label(class="form-label") }}
+                                {{ forms[report.id].moderation_note(class="form-control", rows="2", placeholder="Optional reason or review note (max 500 characters)") }}
+                            </div>
+                            <div class="rc-moderation-actions">
+                                <button class="btn btn-success btn-sm" name="{{ forms[report.id].action.name }}" value="approve" type="submit">Approve</button>
+                                <button class="btn btn-outline-danger btn-sm" name="{{ forms[report.id].action.name }}" value="reject" type="submit">Reject</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rc-admin-empty">
+                <span>✓</span>
+                <h3>No {{ status_filter if status_filter != 'all' else '' }} reports found</h3>
+                <p>There are no reports in this view right now.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <p class="rc-admin-disclaimer">
+        Approval means the submission passed administrator review; it does not make it an official railway occupancy count.
+    </p>
+</div>
+{% endblock %}
