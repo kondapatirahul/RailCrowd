@@ -4,31 +4,29 @@ The backend is a modular Flask application. Python code lives in `backend/`,
 while server-rendered templates and static assets live in the top-level
 `frontend/` directory.
 
-## Error handling and logging
+## User model
 
-Application-wide handlers return consistent JSON error responses for API and
-health routes. Unexpected exceptions are logged with request method and path;
-the response sent to clients contains a generic message and never includes a
-traceback or private exception details.
+The first account model is available as `User` from
+`backend.app.models`. It supports the `passenger` and `admin` roles, account
+enablement, email-verification state, normalized username/email helpers, and
+Werkzeug password hashing.
 
-Logs are written to both the console and a rotating file at
-`instance/logs/railcrowd.log`. Log files are runtime data and must not be
-committed. The file rotates at approximately 1 MB and retains up to five
-backups. Set `LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING`, or `ERROR` as needed.
+Security conventions:
 
-HTTP errors such as 404, 405, 413, and 429 retain their appropriate status
-codes. Database and other unexpected failures should be diagnosed from
-server-side logs, not by exposing internal details to end users.
+- Never store plaintext passwords.
+- Call `User.set_password()` to hash a password.
+- Use `User.check_password()` to verify credentials.
+- Never include `password_hash` in API or template payloads.
+- Use `User.to_public_dict()` for the intentionally limited public fields.
+- Do not create public administrator registration; administrator provisioning
+  must be restricted to a trusted administrative process.
+- Model changes must be captured in a reviewed Flask-Migrate revision.
 
-## Health endpoints
-
-- `GET /health/live` — confirms the Flask process is responding.
-- `GET /health/ready` — checks database connectivity.
-- `GET /health` — compact application and database health summary.
-
-## Run locally
+After adding this model, generate and review a migration:
 
 ```bash
-python -m pip install -r requirements.txt
-python -m backend.run
+flask --app backend.run db migrate -m "add user accounts"
+flask --app backend.run db upgrade
 ```
+
+Do not run `db.create_all()` in production. It is used only by isolated tests.
