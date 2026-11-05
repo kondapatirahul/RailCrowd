@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ train.name }} ({{ train.number }}) | RailCrowd{% endblock %}
+{% block content %}
+<section class="rc-train-page rc-detail-page">
+  <a class="rc-back-link" href="{{ url_for('trains.search') }}">← Back to train search</a>
+  <div class="rc-detail-hero">
+    <span class="rc-eyebrow">TRAIN {{ train.number }}</span>
+    <h1>{{ train.name }}</h1>
+    <p>{{ train.train_type or "Train service" }}{% if train.running_days %} · {{ train.running_days }}{% endif %}</p>
+    <div class="rc-detail-route">
+      <div><small>FROM</small><strong>{{ train.source_station.name }}</strong><span>{{ train.source_station.code }}</span><b>{{ train.departure_time or "Time unavailable" }}</b></div>
+      <div class="rc-detail-arrow">→</div>
+      <div><small>TO</small><strong>{{ train.destination_station.name }}</strong><span>{{ train.destination_station.code }}</span><b>{{ train.arrival_time or "Time unavailable" }}</b></div>
+    </div>
+  </div>
+
+  <div class="rc-results-heading"><div><h2>Route stations</h2><p>Stops available in the RailCrowd catalog.</p></div></div>
+  {% if train.stops %}
+  <ol class="rc-stop-list">
+    {% for stop in train.stops %}
+    <li>
+      <span class="rc-stop-index">{{ stop.stop_order }}</span>
+      <div><strong>{{ stop.station.name }}</strong><small>{{ stop.station.code }}{% if stop.station.city %} · {{ stop.station.city }}{% endif %}</small></div>
+      <div class="rc-stop-times"><span>Arr: {{ stop.arrival_time or "—" }}</span><span>Dep: {{ stop.departure_time or "—" }}</span></div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
+  {% endif %}
+  <div class="rc-data-note">This page displays catalog information only. Live running status, schedules, and official occupancy are not provided.</div>
+</section>
+{% endblock %}
