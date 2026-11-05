@@ -1,10 +1,18 @@
-"""Community-submitted train crowd observations and moderation metadata."""
+"""Community-submitted train crowd observations, moderation, and feedback."""
 
 from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, Text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.app.extensions import db
@@ -67,4 +75,35 @@ class CrowdReport(TimestampMixin, db.Model):
         return (
             f"<CrowdReport id={self.id!r} train={self.train_number!r} "
             f"level={self.crowd_level!r} status={self.status!r}>"
+        )
+
+
+class CrowdReportVote(TimestampMixin, db.Model):
+    """One passenger's confirmation or dispute signal for an approved report."""
+
+    __tablename__ = "crowd_report_votes"
+    __table_args__ = (
+        CheckConstraint(
+            "vote_type IN ('confirm', 'flag')",
+            name="valid_crowd_report_vote_type",
+        ),
+        UniqueConstraint("report_id", "user_id", name="uq_crowd_report_vote_user"),
+        Index("ix_crowd_report_votes_report_type", "report_id", "vote_type"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    report_id: Mapped[int] = mapped_column(
+        ForeignKey("crowd_reports.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    vote_type: Mapped[str] = mapped_column(String(10), nullable=False)
+
+    def __repr__(self) -> str:
+        return (
+            f"<CrowdReportVote report={self.report_id!r} "
+            f"user={self.user_id!r} vote={self.vote_type!r}>"
         )

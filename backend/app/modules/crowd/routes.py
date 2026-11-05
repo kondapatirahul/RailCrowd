@@ -1,15 +1,19 @@
-"""Passenger crowd report submission with catalog-backed route validation."""
+"""Passenger crowd reporting and report verification actions."""
 
-from flask import Blueprint, abort, flash, jsonify, redirect, render_template, url_for
+from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from backend.app.extensions import db
 from backend.app.models.crowd_report import CrowdReport
-from backend.app.modules.crowd.forms import CrowdReportForm
+from backend.app.modules.crowd.forms import CrowdReportForm, ReportFeedbackForm
 from backend.app.modules.crowd.route_catalog import (
     get_reportable_trains,
     get_train_route,
     station_position,
+)
+from backend.app.modules.crowd.verification_service import (
+    cast_report_vote,
+    find_recent_duplicate,
 )
 
 crowd_bp = Blueprint("crowd", __name__)
@@ -46,7 +50,6 @@ def submit_report():
     trains = get_reportable_trains()
     selected_number = ""
     if trains:
-        from flask import request
         selected_number = (
             request.form.get("train_number", "").strip()
             if request.method == "POST"
@@ -74,21 +77,37 @@ def submit_report():
                 )
             else:
                 station_by_code = {station.code: station for station in route_stations}
-                report = CrowdReport(
+                origin = station_by_code[form.from_station.data].name
+                destination = station_by_code[form.to_station.data].name
+                duplicate = find_recent_duplicate(
                     user_id=current_user.id,
                     train_number=train.number,
-                    train_name=train.name,
-                    from_station=station_by_code[form.from_station.data].name,
-                    to_station=station_by_code[form.to_station.data].name,
+                    from_station=origin,
+                    to_station=destination,
                     coach_type=form.coach_type.data,
-                    crowd_level=form.crowd_level.data,
-                    notes=(form.notes.data or "").strip() or None,
-                    status="pending",
                 )
-                db.session.add(report)
-                db.session.commit()
-                flash("Your crowd report was submitted and is awaiting review.", "success")
-                return redirect(url_for("contributions.my_reports"))
+                if duplicate:
+                    flash(
+                        f"A similar report was already submitted recently (report #{duplicate.id}). "
+                        "Please wait before submitting another observation for this segment and coach.",
+                        "warning",
+                    )
+                else:
+                    report = CrowdReport(
+                        user_id=current_user.id,
+                        train_number=train.number,
+                        train_name=train.name,
+                        from_station=origin,
+                        to_station=destination,
+                        coach_type=form.coach_type.data,
+                        crowd_level=form.crowd_level.data,
+                        notes=(form.notes.data or "").strip() or None,
+                        status="pending",
+                    )
+                    db.session.add(report)
+                    db.session.commit()
+                    flash("Your crowd report was submitted and is awaiting review.", "success")
+                    return redirect(url_for("contributions.my_reports"))
 
     return render_template(
         "crowd/submit_report.html",
@@ -97,3 +116,36 @@ def submit_report():
         selected_train=train,
         route_stations=stations,
     )
+
+
+@crowd_bp.post("/reports/<int:report_id>/feedback")
+@login_required
+def report_feedback(report_id):
+    """Allow a passenger to confirm or flag another passenger's approved report."""
+    _require_passenger()
+    form = ReportFeedbackForm()
+    if not form.validate_on_submit():
+        flash("Please choose valid feedback and try again.", "warning")
+        return redirect(url_for("trains.detail", train_number=request.form.get("train_number", "")))
+
+    result, status_code = cast_report_vote(
+        report_id=report_id,
+        user_id=current_user.id,
+        vote_type=form.vote_type.data,
+    )
+    messages = {
+        "created": ("Thanks. Your feedback was recorded.", "success"),
+        "updated": ("Your feedback was updated.", "success"),
+        "unchanged": ("Your feedback is already recorded.", "info"),
+        "own_report": ("You cannot verify your own report.", "warning"),
+        "not_eligible": ("Only approved reports can receive feedback.", "warning"),
+        "not_found": ("That report could not be found.", "warning"),
+        "invalid_vote": ("Choose valid feedback.", "warning"),
+    }
+    message, category = messages.get(result, ("Feedback could not be saved.", "warning"))
+    flash(message, category)
+
+    if status_code == 404:
+        abort(404)
+    report = db.session.get(CrowdReport, report_id)
+    return redirect(url_for("trains.detail", train_number=report.train_number))
