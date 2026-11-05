@@ -1,0 +1,1 @@
+"""Train coach information routes."""
