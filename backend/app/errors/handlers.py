@@ -1,3 +1,5 @@
+"""Consistent HTTP and unexpected-error responses."""
+
 from flask import Flask, current_app, jsonify, request
 from werkzeug.exceptions import HTTPException
 

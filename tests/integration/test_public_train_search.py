@@ -8,21 +8,12 @@ from backend.app.models.train import Train, TrainStop
 @pytest.fixture()
 def train_catalog_client(dashboard_app):
     with dashboard_app.app_context():
-        source = Station(code="VSKP", name="Visakhapatnam", city="Visakhapatnam")
-        destination = Station(code="SC", name="Secunderabad", city="Hyderabad")
-        db.session.add_all([source, destination])
-        db.session.flush()
-        train = Train(
-            number="12727",
-            name="Godavari Express",
-            train_type="Express",
-            source_station_id=source.id,
-            destination_station_id=destination.id,
-            departure_time="17:20",
-            arrival_time="06:15",
-            running_days="Daily",
-        )
-        db.session.add(train)
+        source = Station.query.filter_by(code="VSKP").one()
+        destination = Station.query.filter_by(code="SC").one()
+        train = Train.query.filter_by(number="12727").one()
+        train.departure_time = "17:20"
+        train.arrival_time = "06:15"
+        train.running_days = "Daily"
         db.session.flush()
         db.session.add(
             TrainStop(

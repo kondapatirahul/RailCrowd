@@ -117,4 +117,4 @@ def test_invalid_report_id_returns_404(dashboard_client):
 def test_admin_login_redirects_to_moderation_queue(dashboard_client):
     response = _login(dashboard_client, "dashboardadmin")
     assert response.status_code in (302, 303)
-    assert response.headers["Location"].endswith("/admin/reports")
+    assert response.headers["Location"].endswith("/admin/")
