@@ -1,4 +1,4 @@
-"""Community-submitted train crowd observations."""
+"""Community-submitted train crowd observations and moderation metadata."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from backend.app.models.base import TimestampMixin, utc_now
 
 
 class CrowdReport(TimestampMixin, db.Model):
-    """A passenger-submitted crowd observation awaiting moderation."""
+    """A passenger-submitted crowd observation with an auditable review state."""
 
     __tablename__ = "crowd_reports"
     __table_args__ = (
@@ -32,6 +32,7 @@ class CrowdReport(TimestampMixin, db.Model):
             "to_station",
             "status",
         ),
+        Index("ix_crowd_reports_status_created", "status", "created_at"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -53,6 +54,14 @@ class CrowdReport(TimestampMixin, db.Model):
     observed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
+    moderated_by_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    moderated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    moderation_note: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     def __repr__(self) -> str:
         return (
