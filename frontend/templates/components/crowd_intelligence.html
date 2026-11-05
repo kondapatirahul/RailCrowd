@@ -1,0 +1,53 @@
+<section class="rc-crowd-panel" aria-labelledby="crowd-heading">
+  <div class="rc-crowd-panel-heading">
+    <div>
+      <span class="rc-crowd-kicker">COMMUNITY INTELLIGENCE</span>
+      <h2 id="crowd-heading">Current crowd picture</h2>
+      <p>Based on approved passenger observations from the last {{ crowd_summary.freshness_window_minutes }} minutes.</p>
+    </div>
+    {% if crowd_summary.crowd_level %}
+      <span class="rc-crowd-level rc-level-{{ crowd_summary.crowd_level|lower|replace(' ', '-') }}">{{ crowd_summary.crowd_level }}</span>
+    {% endif %}
+  </div>
+
+  {% if crowd_summary.report_count %}
+  <div class="rc-crowd-metrics">
+    <article><span>Indicative crowd index</span><strong>{{ crowd_summary.crowd_index }}/100</strong></article>
+    <article><span>Approved reports</span><strong>{{ crowd_summary.report_count }}</strong></article>
+    <article><span>Evidence volume</span><strong>{{ crowd_summary.confidence }}</strong></article>
+    <article><span>Report freshness</span><strong>{{ crowd_summary.freshness }}</strong></article>
+  </div>
+  <p class="rc-crowd-latest">Latest observation: <time>{{ crowd_summary.latest_report_at|replace('T', ' ')|replace('+00:00', ' UTC') }}</time></p>
+  {% else %}
+  <div class="rc-crowd-empty">
+    <strong>No recent reports</strong>
+    <p>There are no approved passenger observations for this train in the current freshness window.</p>
+  </div>
+  {% endif %}
+
+  <div class="rc-crowd-breakdowns">
+    <div>
+      <h3>Coach-wise crowd</h3>
+      {% if crowd_summary.coaches %}
+      <div class="rc-crowd-table-wrap"><table class="rc-crowd-table">
+        <thead><tr><th>Coach</th><th>Crowd</th><th>Index</th><th>Reports</th></tr></thead>
+        <tbody>{% for item in crowd_summary.coaches %}<tr>
+          <td>{{ item.coach_type }}</td><td><span class="rc-crowd-chip">{{ item.crowd_level }}</span></td><td>{{ item.crowd_index }}/100</td><td>{{ item.report_count }}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<p class="rc-crowd-muted">No coach-level observations yet.</p>{% endif %}
+    </div>
+    <div>
+      <h3>Journey-segment crowd</h3>
+      {% if crowd_summary.segments %}
+      <div class="rc-crowd-table-wrap"><table class="rc-crowd-table">
+        <thead><tr><th>Segment</th><th>Crowd</th><th>Reports</th></tr></thead>
+        <tbody>{% for item in crowd_summary.segments %}<tr>
+          <td>{{ item.from_station }} → {{ item.to_station }}</td><td><span class="rc-crowd-chip">{{ item.crowd_level }}</span></td><td>{{ item.report_count }}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<p class="rc-crowd-muted">No segment-level observations yet.</p>{% endif %}
+    </div>
+  </div>
+  <p class="rc-crowd-disclaimer">Community estimates only. This is not official railway occupancy, a live passenger count, or a guaranteed seat-availability indicator. Confidence describes the number of reports, not statistical certainty.</p>
+</section>
