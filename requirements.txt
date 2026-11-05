@@ -1,0 +1,12 @@
+# Core dependencies planned for the Flask application.
+Flask>=3.0,<4.0
+Flask-SQLAlchemy>=3.1,<4.0
+Flask-Login>=0.6,<1.0
+Flask-WTF>=1.2,<2.0
+Flask-Migrate>=4.0,<5.0
+python-dotenv>=1.0,<2.0
+email-validator>=2.0,<3.0
+
+# Development and testing
+pytest>=8.0,<9.0
+pytest-cov>=5.0,<7.0
