@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}My Contributions | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crowd_reports.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="rc-report-shell">
+    <div class="rc-report-heading">
+        <div>
+            <p class="rc-report-eyebrow">PASSENGER ACTIVITY</p>
+            <h1>My contributions</h1>
+            <p>Review the crowd observations you have submitted to RailCrowd.</p>
+        </div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('crowd.submit_report') }}">＋ New report</a>
+    </div>
+
+    <div class="rc-contribution-summary">
+        <div>
+            <span class="rc-summary-label">Your submissions</span>
+            <strong>{{ total_reports }}</strong>
+        </div>
+        <p>Only your own reports are shown here. New submissions remain pending until reviewed.</p>
+    </div>
+
+    {% if reports %}
+        <div class="rc-report-list">
+            {% for report in reports %}
+            <article class="rc-report-item">
+                <div class="rc-report-item-top">
+                    <div>
+                        <span class="rc-train-number">{{ report.train_number }}</span>
+                        <h2>{{ report.train_name }}</h2>
+                    </div>
+                    <span class="rc-status rc-status-{{ report.status }}">{{ report.status|title }}</span>
+                </div>
+                <div class="rc-route-line">
+                    <span>{{ report.from_station }}</span>
+                    <span class="rc-route-arrow">→</span>
+                    <span>{{ report.to_station }}</span>
+                </div>
+                <div class="rc-report-meta">
+                    <span><strong>Coach:</strong> {{ report.coach_type }}</span>
+                    <span><strong>Crowd:</strong> {{ report.crowd_level }}</span>
+                    <span><strong>Submitted:</strong> {{ report.created_at.strftime('%d %b %Y, %I:%M %p') if report.created_at else 'Date unavailable' }}</span>
+                </div>
+                {% if report.notes %}
+                    <p class="rc-report-notes">{{ report.notes }}</p>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="rc-empty-state">
+            <div class="rc-empty-icon">↗</div>
+            <h2>No contributions yet</h2>
+            <p>Your submitted crowd reports will appear here.</p>
+            <a class="btn btn-primary" href="{{ url_for('crowd.submit_report') }}">Submit your first report</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
