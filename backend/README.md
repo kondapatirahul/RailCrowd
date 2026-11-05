@@ -25,18 +25,24 @@ python -m backend.run
 Open `http://127.0.0.1:5000/`. Until public routes are added in a later
 increment, the root URL is expected to return Flask's standard 404 response.
 
-## Configuration
+## Configuration and extensions
 
 `FLASK_CONFIG` selects `development`, `testing`, or `production`. The default
-is `development`. `create_app()` loads the root `.env` file without overriding
-variables already supplied by the operating system.
+is `development`. The application factory loads the root `.env` file without
+overriding variables already supplied by the operating system.
 
-- Development uses local debugging defaults and a clearly marked fallback
-  secret. Set your own `SECRET_KEY` for any shared environment.
-- Testing uses an in-memory SQLite database and disables form CSRF for tests.
-- Production disables debug mode, enables secure session cookies, and refuses
-to start without a `SECRET_KEY` of at least 32 characters.
+Shared extension instances are defined in `app/extensions.py` and initialized
+inside `create_app()`:
 
-`DATABASE_URL` defaults to a SQLite file under `instance/`. Database tables
-and migrations are introduced in subsequent increments. Never commit `.env`
-or production credentials.
+- `db`: Flask-SQLAlchemy database integration
+- `migrate`: Flask-Migrate schema migration integration
+- `login_manager`: Flask-Login session and user-loading integration
+- `csrf`: Flask-WTF CSRF protection
+
+Import these shared instances from `backend.app.extensions`; do not create a
+second SQLAlchemy or LoginManager instance in individual modules. Models and
+migration commands are introduced in later increments.
+
+Production disables debug mode, enables secure session cookies, and requires
+a `SECRET_KEY` of at least 32 characters. Never commit `.env` or production
+credentials.
