@@ -1,17 +1,25 @@
-# Backend Structure
+# RailCrowd Backend
 
-This directory contains the Python Flask application.
+The backend is a modular Flask application. Python code lives in `backend/`,
+while server-rendered templates and static assets live in the top-level
+`frontend/` directory.
 
-## Planned layout
+## Run locally
 
-- `app/`: Flask application package.
-- `app/models/`: SQLAlchemy model definitions.
-- `app/modules/`: Feature modules organized as Flask Blueprints.
-- `app/services/`: Business logic, including crowd aggregation and report verification.
-- `app/repositories/`: Reusable database query operations.
-- `app/middleware/`: Request hooks and access-control helpers.
-- `app/utils/`: Shared validation and formatting utilities.
-- `app/errors/`: Application-specific error handling.
-- `migrations/`: Database migration files.
+From the repository root, create and activate a virtual environment, install
+root requirements, then run:
 
-The application factory, configuration, extensions and executable entry point will be implemented in a later increment. This increment intentionally establishes package boundaries only.
+```bash
+python -m pip install -r requirements.txt
+python -m backend.run
+```
+
+Open `http://127.0.0.1:5000/`. Until public routes are added in a later
+increment, the root URL is expected to return Flask's standard 404 response.
+
+## Application factory
+
+Import `create_app` from `backend.app`. It accepts an optional Flask
+configuration object, mapping, or import path. The factory explicitly points
+Flask at `frontend/templates` and `frontend/static` so the repository layout
+does not depend on the current working directory.
