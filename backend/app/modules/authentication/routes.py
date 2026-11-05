@@ -18,7 +18,6 @@ def _safe_local_redirect(target):
     """Accept only same-site absolute paths; reject external and scheme-relative URLs."""
     if not target or not isinstance(target, str):
         return None
-
     parsed = urlsplit(target)
     if parsed.scheme or parsed.netloc or not parsed.path.startswith("/"):
         return None
@@ -27,10 +26,17 @@ def _safe_local_redirect(target):
     return target
 
 
+def _default_dashboard_url(user):
+    """Choose the landing page that matches the account's role."""
+    if user.is_admin:
+        return url_for("admin.report_queue")
+    return url_for("passenger.dashboard")
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("passenger.dashboard"))
+        return redirect(_default_dashboard_url(current_user))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -79,7 +85,7 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("passenger.dashboard"))
+        return redirect(_default_dashboard_url(current_user))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -96,7 +102,7 @@ def login():
             login_user(user, remember=form.remember_me.data, fresh=True)
             flash(f"Welcome back, {user.full_name}.", "success")
             destination = _safe_local_redirect(request.args.get("next"))
-            return redirect(destination or url_for("passenger.dashboard"))
+            return redirect(destination or _default_dashboard_url(user))
 
     return render_template("auth/login.html", form=form)
 
