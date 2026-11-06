@@ -11,6 +11,7 @@ from backend.app.modules.crowd.route_catalog import (
     get_train_route,
     station_position,
 )
+from backend.app.modules.trains.services.catalog_service import search_trains
 from backend.app.modules.crowd.verification_service import (
     cast_report_vote,
     find_recent_duplicate,
@@ -22,6 +23,30 @@ crowd_bp = Blueprint("crowd", __name__)
 def _require_passenger():
     if current_user.role != "passenger":
         abort(403)
+
+
+@crowd_bp.get("/reports/api/trains/search")
+@login_required
+def search_report_trains():
+    """Search active trains for the report form by number, name, or station."""
+    _require_passenger()
+    query = (request.args.get("q") or "").strip()
+    if not query:
+        return jsonify({"trains": [], "error": "Enter a train number, train name, or station."}), 400
+    matches = search_trains(query=query, limit=20)
+    return jsonify({
+        "trains": [
+            {
+                "number": train.number,
+                "name": train.name,
+                "source": train.source_station.name if train.source_station else "Unknown",
+                "source_code": train.source_station.code if train.source_station else "",
+                "destination": train.destination_station.name if train.destination_station else "Unknown",
+                "destination_code": train.destination_station.code if train.destination_station else "",
+            }
+            for train in matches
+        ]
+    })
 
 
 @crowd_bp.get("/reports/api/trains/<string:train_number>/route")
