@@ -23,16 +23,12 @@ def _require_passenger():
 def inbox():
     _require_passenger()
     items = db.session.execute(
-        select(Notification)
-        .where(Notification.user_id == current_user.id)
-        .order_by(Notification.created_at.desc(), Notification.id.desc())
-        .limit(100)
+        select(Notification).where(Notification.user_id == current_user.id)
+        .order_by(Notification.created_at.desc(), Notification.id.desc()).limit(100)
     ).scalars().all()
-    unread_count = sum(not item.is_read for item in items)
     return render_template(
-        "passenger/notifications.html",
-        notifications=items,
-        unread_count=unread_count,
+        "passenger/notifications.html", notifications=items,
+        unread_count=sum(not item.is_read for item in items),
     )
 
 
@@ -40,12 +36,9 @@ def inbox():
 @login_required
 def mark_read(notification_id):
     _require_passenger()
-    item = db.session.execute(
-        select(Notification).where(
-            Notification.id == notification_id,
-            Notification.user_id == current_user.id,
-        )
-    ).scalar_one_or_none()
+    item = db.session.execute(select(Notification).where(
+        Notification.id == notification_id, Notification.user_id == current_user.id
+    )).scalar_one_or_none()
     if item is None:
         abort(404)
     item.is_read = True
@@ -74,11 +67,9 @@ def mark_all_read():
 @login_required
 def saved_trains():
     _require_passenger()
-    trains = db.session.execute(
-        select(SavedTrain)
-        .where(SavedTrain.user_id == current_user.id)
-        .order_by(SavedTrain.created_at.desc())
-    ).scalars().all()
+    trains = db.session.execute(select(SavedTrain).where(
+        SavedTrain.user_id == current_user.id
+    ).order_by(SavedTrain.created_at.desc())).scalars().all()
     return render_template("passenger/saved_trains.html", trains=trains)
 
 
@@ -99,9 +90,7 @@ def save_train():
         )
     ).scalar_one_or_none()
     if existing is None:
-        db.session.add(SavedTrain(
-            user_id=current_user.id, train_number=number, train_name=name
-        ))
+        db.session.add(SavedTrain(user_id=current_user.id, train_number=number, train_name=name))
         db.session.commit()
         flash(f"{number} added to your saved trains.", "success")
     else:
@@ -113,12 +102,9 @@ def save_train():
 @login_required
 def remove_saved_train(saved_train_id):
     _require_passenger()
-    saved = db.session.execute(
-        select(SavedTrain).where(
-            SavedTrain.id == saved_train_id,
-            SavedTrain.user_id == current_user.id,
-        )
-    ).scalar_one_or_none()
+    saved = db.session.execute(select(SavedTrain).where(
+        SavedTrain.id == saved_train_id, SavedTrain.user_id == current_user.id
+    )).scalar_one_or_none()
     if saved is None:
         abort(404)
     db.session.delete(saved)
@@ -131,16 +117,13 @@ def remove_saved_train(saved_train_id):
 @login_required
 def preferences():
     _require_passenger()
-    preference = db.session.execute(
-        select(NotificationPreference).where(
-            NotificationPreference.user_id == current_user.id
-        )
-    ).scalar_one_or_none()
+    preference = db.session.execute(select(NotificationPreference).where(
+        NotificationPreference.user_id == current_user.id
+    )).scalar_one_or_none()
     if preference is None:
         preference = NotificationPreference(user_id=current_user.id)
         db.session.add(preference)
         db.session.commit()
-
     if request.method == "POST":
         preference.report_updates = request.form.get("report_updates") == "on"
         preference.crowd_changes = request.form.get("crowd_changes") == "on"
