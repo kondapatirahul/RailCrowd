@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 {% block title %}{{ train.name }} ({{ train.number }}) | RailCrowd{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saved_train_catalog.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saved_train_catalog.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/incidents/interactions.css') }}">{% endblock %}
 {% block content %}
 <section class="rc-train-page rc-detail-page">
   <a class="rc-back-link" href="{{ url_for('trains.search') }}">← Back to train search</a>
@@ -45,6 +45,11 @@
   {% else %}
   <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
   {% endif %}
+  <section class="rc-incident-impact" data-train-impact="{{ train.number }}" aria-labelledby="incident-impact-heading">
+    <div class="rc-results-heading"><div><h2 id="incident-impact-heading">Reported service disruptions</h2><p>Verified community incident reports and RailCrowd advisories linked to this train.</p></div><a href="{{ url_for('incidents.feed_page', train_number=train.number) }}">Open disruption feed →</a></div>
+    <div data-impact-results aria-live="polite">Loading community disruption context…</div>
+    <p class="rc-data-note">This section reflects passenger observations and RailCrowd moderation, not official railway running status or an operational guarantee.</p>
+  </section>
   <section class="rc-crowd-panel" aria-labelledby="crowd-heading">
     <div class="rc-results-heading">
       <div><h2 id="crowd-heading">Current crowd picture</h2>
@@ -125,3 +130,5 @@
   </section>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/incidents/impact-widget.js') }}" defer></script>{% endblock %}

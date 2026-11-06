@@ -40,6 +40,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.modules.passenger import passenger_bp
     from backend.app.modules.notifications import notifications_bp
     from backend.app.modules.journeys import journeys_bp
+    from backend.app.modules.incidents import incidents_bp
     from backend.app.modules.trains import trains_bp
     from backend.app.utils.logging_config import configure_logging
     configure_logging(app); configure_database(app); init_extensions(app)
@@ -49,6 +50,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     app.register_blueprint(contributions_bp); app.register_blueprint(admin_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(journeys_bp)
+    app.register_blueprint(incidents_bp)
     app.register_blueprint(trains_bp, url_prefix="/trains")
     import backend.app.models.user  # noqa: F401
     import backend.app.models.crowd_report  # noqa: F401
@@ -56,6 +58,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     import backend.app.models.train  # noqa: F401
     import backend.app.models.notification  # noqa: F401
     import backend.app.models.journey  # noqa: F401
+    import backend.app.models.incident  # noqa: F401
     return app
 
 __all__ = ["create_app"]

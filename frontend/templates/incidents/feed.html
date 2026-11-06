@@ -1,0 +1,85 @@
+{% extends "layouts/base.html" %}
+{% block title %}Live disruptions · RailCrowd{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/incidents/interactions.css') }}"><link rel="stylesheet" href="{{ url_for('static', filename='css/incidents/feed.css') }}">{% endblock %}
+{% block content %}
+<section class="incident-shell" data-feed-root>
+  <header class="incident-hero">
+    <div class="incident-hero__copy">
+      <span class="incident-eyebrow">COMMUNITY DISRUPTION INTELLIGENCE</span>
+      <h1>Know what is happening<br><em>along your journey.</em></h1>
+      <p>Passenger observations, verified updates and service advisories in one place.</p>
+      <div class="incident-hero__actions">
+        {% if current_user.is_authenticated and current_user.role == 'passenger' %}
+          <a class="incident-primary" href="{{ url_for('incidents.new_incident') }}">Report a disruption <span>↗</span></a>
+          <a class="incident-secondary" href="{{ url_for('incidents.watches_page') }}">My watched routes</a>
+        {% else %}
+          <a class="incident-primary" href="{{ url_for('authentication.login') }}">Sign in to report <span>↗</span></a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="incident-hero__signal" aria-label="Community incident summary">
+      <div class="signal-orbit signal-orbit--outer"></div>
+      <div class="signal-orbit signal-orbit--inner"></div>
+      <div class="signal-core"><span class="signal-core__pulse"></span><strong>{{ counts.active }}</strong><small>active reports</small></div>
+      <span class="signal-label signal-label--top">LIVE COMMUNITY SIGNAL</span>
+      <span class="signal-label signal-label--bottom">NOT OFFICIAL RAILWAY STATUS</span>
+    </div>
+  </header>
+  <section class="incident-metrics" aria-label="Current disruption summary">
+    <article class="metric-tile"><span class="metric-tile__label">Active verified reports</span><strong>{{ counts.active }}</strong><small>Across trains and stations</small></article>
+    <article class="metric-tile metric-tile--critical"><span class="metric-tile__label">Critical observations</span><strong>{{ counts.critical }}</strong><small>Review official instructions</small></article>
+    <article class="metric-tile"><span class="metric-tile__label">Affected trains</span><strong>{{ counts.trains }}</strong><small>With an active community report</small></article>
+    <article class="metric-tile"><span class="metric-tile__label">Affected stations</span><strong>{{ counts.stations }}</strong><small>With an active community report</small></article>
+  </section>
+  {% if advisories %}
+  <section class="advisory-strip" aria-labelledby="advisory-strip-title">
+    <div class="section-heading"><div><span class="incident-eyebrow">OPERATIONS BULLETINS</span><h2 id="advisory-strip-title">Service advisories</h2></div><a href="{{ url_for('incidents.advisories_page') }}">All advisories →</a></div>
+    <div class="advisory-strip__items">
+      {% for advisory in advisories %}
+      <article class="advisory-chip advisory-chip--{{ advisory.severity }}"><span class="advisory-chip__mark">{{ '!' if advisory.severity in ['warning','critical'] else 'i' }}</span><div><strong>{{ advisory.title }}</strong><p>{{ advisory.summary }}</p></div><span class="advisory-chip__level">{{ advisory.severity|title }}</span></article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  <section class="incident-feed-layout">
+    <aside class="incident-filter-panel">
+      <div class="filter-panel__heading"><div><span class="incident-eyebrow">DISCOVER</span><h2>Filter reports</h2></div><button type="button" data-filter-reset>Reset</button></div>
+      <form method="get" action="{{ url_for('incidents.feed_page') }}" class="incident-filter-form" data-filter-form>
+        <label for="incident-query">Search reports</label><div class="filter-search"><span>⌕</span><input id="incident-query" type="search" name="q" value="{{ filters.get('q','') }}" placeholder="Train, station or issue"></div>
+        <label for="incident-category">Category</label><select id="incident-category" name="category"><option value="">All categories</option>{% for value,label in [('delay','Train delay'),('cancellation','Cancellation'),('platform_change','Platform change'),('overcrowding','Overcrowding'),('safety','Passenger safety'),('cleanliness','Cleanliness'),('facility','Station facility'),('accessibility','Accessibility'),('security','Security'),('track','Track or infrastructure'),('other','Other')] %}<option value="{{ value }}" {% if filters.get('category') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <label for="incident-severity">Severity</label><select id="incident-severity" name="severity"><option value="">All levels</option>{% for value,label in [('information','Information'),('minor','Minor'),('major','Major'),('critical','Critical')] %}<option value="{{ value }}" {% if filters.get('severity') == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <label for="incident-window">Time window</label><select id="incident-window" name="window"><option value="hour">Last hour</option><option value="day">Last 24 hours</option><option value="week" selected>Last 7 days</option><option value="month">Last 30 days</option><option value="all">All available</option></select>
+        <label for="incident-train">Train number</label><input id="incident-train" name="train_number" inputmode="numeric" value="{{ filters.get('train_number','') }}" placeholder="e.g. 12727">
+        <label for="incident-station">Station code</label><input id="incident-station" name="station_code" value="{{ filters.get('station_code','') }}" maxlength="10" placeholder="e.g. VSKP">
+        <button class="filter-submit" type="submit">Apply filters <span>→</span></button>
+      </form>
+      <div class="filter-panel__foot"><span class="filter-live-dot"></span><span>Community updates are time-sensitive</span></div>
+    </aside>
+    <div class="incident-feed-main">
+      <header class="feed-heading"><div><span class="incident-eyebrow">PASSENGER OBSERVATIONS</span><h2>Disruption feed <span>{{ feed.total }}</span></h2><p>Reports are reviewed and may change as passengers add information.</p></div><div class="feed-tools"><a href="{{ url_for('incidents.export_csv') }}" class="tool-link">Export CSV</a><a href="{{ url_for('incidents.export_json') }}" class="tool-link">JSON</a></div></header>
+      {% if feed.items %}
+      <div class="incident-card-list">
+        {% for item in feed.items %}
+        <article class="incident-card incident-card--{{ item.severity }}" data-incident-card data-id="{{ item.id }}">
+          <div class="incident-card__rail"><span class="severity-mark severity-mark--{{ item.severity }}">{{ '!' if item.severity in ['major','critical'] else 'i' }}</span><span class="incident-card__rail-line"></span></div>
+          <div class="incident-card__body">
+            <div class="incident-card__top"><div class="incident-tags"><span class="incident-category">{{ item.category|replace('_',' ')|title }}</span><span class="incident-status incident-status--{{ item.status }}">{{ item.status|replace('_',' ')|title }}</span></div><time>{{ item.age_minutes }} min ago</time></div>
+            <h3><a href="{{ url_for('incidents.detail_page', incident_id=item.id) }}">{{ item.title }}</a></h3>
+            <p class="incident-card__description">{{ item.description }}</p>
+            <div class="incident-card__location"><span>⌁</span>{% if item.train_number %}<strong>{{ item.train_number }}</strong><span>{{ item.train_name or 'Train' }}</span>{% endif %}{% if item.station_code %}<strong>{{ item.station_code }}</strong><span>{{ item.station_name or 'Station' }}</span>{% endif %}</div>
+            <div class="incident-card__bottom"><div class="confidence-meter"><span>Community confidence</span><div class="confidence-track"><i style="width: {{ item.confidence }}%"></i></div><strong>{{ item.confidence }}%</strong></div><div class="incident-card__counts"><span>✓ {{ item.verification_count }} confirmed</span><span>↗ {{ item.contradiction_count }} disputed</span></div><a class="incident-open" href="{{ url_for('incidents.detail_page', incident_id=item.id) }}">View details <span>→</span></a></div>
+            <div class="freshness-note freshness-note--{{ item.freshness }}"><span></span>{{ item.freshness|title }} community observation</div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% if feed.pages > 1 %}<nav class="feed-pagination" aria-label="Incident feed pages">{% if feed.page > 1 %}<a href="?page={{ feed.page - 1 }}">← Previous</a>{% endif %}<span>Page {{ feed.page }} of {{ feed.pages }}</span>{% if feed.page < feed.pages %}<a href="?page={{ feed.page + 1 }}">Next →</a>{% endif %}</nav>{% endif %}
+      {% else %}
+      <div class="incident-empty"><div class="incident-empty__art">⌁</div><h3>No matching disruptions</h3><p>Try a wider time window or remove one of your filters. You can also submit a new observation.</p><a href="{{ url_for('incidents.feed_page') }}">Clear filters</a></div>
+      {% endif %}
+      <p class="incident-disclaimer">RailCrowd reports are community observations, not official train running status, platform announcements, safety instructions or railway authority notices. Always follow official railway information and staff directions.</p>
+    </div>
+  </section>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/incidents/feed.js') }}" defer></script><script src="{{ url_for('static', filename='js/incidents/keyboard.js') }}" defer></script><script src="{{ url_for('static', filename='js/incidents/search-suggest.js') }}" defer></script><script src="{{ url_for('static', filename='js/incidents/accessibility.js') }}" defer></script>{% endblock %}

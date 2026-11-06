@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% block title %}Create service advisory · RailCrowd{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/incidents/forms.css') }}">{% endblock %}
+{% block content %}
+<section class="incident-form-page advisory-form-page"><a class="incident-back" href="{{ url_for('incidents.admin_board') }}">← Operations console</a><header class="form-hero form-hero--compact"><span class="incident-eyebrow">OPERATIONS COMMUNICATION</span><h1>Create a service<br><em>advisory.</em></h1><p>Publish a clearly scoped RailCrowd notice for affected trains and stations.</p></header>
+<form method="post" class="incident-report-form">{{ form.hidden_tag() }}
+  <section class="form-section"><div class="form-section__heading"><span>01</span><div><h2>Advisory content</h2><p>Use clear, neutral language and include the relevant time window.</p></div></div>
+    <div class="form-field"><label for="title">Title</label>{{ form.title(id='title', class='form-control') }}</div>
+    <div class="form-field"><label for="summary">Short summary</label>{{ form.summary(id='summary', class='form-control') }}</div>
+    <div class="form-field"><label for="body">Full notice</label>{{ form.body(id='body', class='form-control', rows=8) }}</div>
+    <div class="form-field"><label for="severity">Severity</label>{{ form.severity(id='severity', class='form-control') }}</div>
+  </section>
+  <section class="form-section"><div class="form-section__heading"><span>02</span><div><h2>Impact scope</h2><p>Enter comma-separated train numbers and station codes.</p></div></div>
+    <div class="form-field"><label for="affected_trains">Affected trains</label>{{ form.affected_trains(id='affected_trains', class='form-control', placeholder='12727, 12805, 17015') }}</div>
+    <div class="form-field"><label for="affected_stations">Affected stations</label>{{ form.affected_stations(id='affected_stations', class='form-control', placeholder='VSKP, RJY, SC') }}</div>
+    <div class="form-field"><label for="alternative_guidance">Passenger guidance</label>{{ form.alternative_guidance(id='alternative_guidance', class='form-control', rows=5) }}</div>
+  </section>
+  <div class="advisory-authority-note"><strong>Important distinction</strong><p>Do not present a RailCrowd advisory as an official railway order, platform announcement, confirmed timetable update or emergency instruction. Cite the source and make the platform's role clear.</p></div>
+  <div class="form-submit-row"><a href="{{ url_for('incidents.admin_board') }}">Cancel</a><button type="submit" name="action" value="draft">Save draft</button><button type="submit" name="action" value="publish">Publish advisory →</button></div>
+</form></section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/incidents/accessibility.js') }}" defer></script><script src="{{ url_for('static', filename='js/incidents/advisory-editor.js') }}" defer></script>{% endblock %}
