@@ -72,7 +72,16 @@ def feed_page():
     except (IncidentSearchError, ValueError) as exc:
         flash(str(exc), "warning")
         result = public_feed({}, 1, 20)
-    return render_template("incidents/feed.html", feed=result, counts=public_counts(), advisories=advisory_feed(5), filters=request.args)
+    return render_template(
+        "incidents/feed.html",
+        feed_rows=result.get("items", []),
+        feed_total=result.get("total", 0),
+        feed_page=result.get("page", 1),
+        feed_pages=result.get("pages", 0),
+        counts=public_counts(),
+        advisories=advisory_feed(5),
+        filters=request.args,
+    )
 
 @incidents_bp.get("/api/feed")
 def feed_api():
@@ -399,7 +408,7 @@ def export_json():
 def my_digest_page():
     _passenger_required()
     digest = digest_for_user(current_user.id)
-    return render_template("incidents/digest.html", digest=digest, summary=digest_summary(digest))
+    return render_template("incidents/digest.html", digest_data=digest, summary=digest_summary(digest))
 
 @incidents_bp.get("/station/<string:station_code>")
 def station_context_page(station_code):
