@@ -21,6 +21,7 @@ class RegistrationForm(FlaskForm):
     )
     username = StringField(
         "Username",
+        filters=[lambda value: value.strip() if value else value],
         validators=[
             DataRequired(),
             Length(min=3, max=40),
@@ -30,7 +31,11 @@ class RegistrationForm(FlaskForm):
             ),
         ],
     )
-    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=255)])
+    email = StringField(
+        "Email",
+        filters=[lambda value: value.strip() if value else value],
+        validators=[DataRequired(), Email(), Length(max=255)],
+    )
     password = PasswordField(
         "Password",
         validators=[DataRequired(), Length(min=8, max=128)],
@@ -44,15 +49,6 @@ class RegistrationForm(FlaskForm):
     )
     submit = SubmitField("Create account")
 
-    def validate_username(self, field):
-        normalized = field.data.strip().lower()
-        if User.query.filter_by(username=normalized).first():
-            raise ValidationError("That username is already in use.")
-
-    def validate_email(self, field):
-        normalized = field.data.strip().lower()
-        if User.query.filter_by(email=normalized).first():
-            raise ValidationError("An account with that email already exists.")
 
 
 class LoginForm(FlaskForm):

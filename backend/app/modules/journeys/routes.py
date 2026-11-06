@@ -10,7 +10,7 @@ from backend.app.extensions import db
 from backend.app.models.journey import JourneyFeedback, JourneyPlan, StationFacility
 from backend.app.models.station import Station
 from backend.app.modules.journeys import journeys_bp
-from backend.app.modules.journeys.serializers import serialize_journey
+from backend.app.modules.journeys.serializers import serialize_candidate, serialize_journey
 from backend.app.modules.journeys.services.alerts import acknowledge_alert, create_alert, dismiss_alert
 from backend.app.modules.journeys.services.itinerary_service import (
     add_checkpoint, change_journey_status, create_journey, create_share, duplicate_journey,
@@ -21,7 +21,6 @@ from backend.app.modules.journeys.services.planner import plan_journeys
 from backend.app.modules.journeys.services.preferences import (
     get_preferences, serialize_preferences, update_preferences,
 )
-from backend.app.modules.journeys.services.serializers import serialize_candidate
 from backend.app.modules.journeys.services.station_facilities import (
     FACILITY_TYPES, create_facility, facility_health_summary,
     filter_facilities, list_station_facilities, update_facility_feedback,

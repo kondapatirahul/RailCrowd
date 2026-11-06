@@ -8,6 +8,8 @@ from backend.app.modules.trains.services.catalog_service import (
     get_train_by_number,
     search_trains,
 )
+from backend.app.modules.trains.services.crowd_intelligence import get_train_crowd_summary
+from backend.app.modules.trains.services.report_verification import get_public_verification_reports
 from backend.app.modules.trains.services.saved_train_service import (
     get_saved_train_numbers,
     is_train_saved,
@@ -53,6 +55,8 @@ def detail(train_number):
         "public/train_detail.html",
         train=train,
         is_saved_train=saved,
+        crowd_summary=get_train_crowd_summary(train.number),
+        verification_reports=get_public_verification_reports(train.number),
     )
 
 

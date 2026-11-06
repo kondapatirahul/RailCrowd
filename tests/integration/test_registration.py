@@ -28,7 +28,7 @@ def _register(client, **overrides):
     values = {
         "full_name": "Test Passenger",
         "username": "testpassenger",
-        "email": "passenger@example.test",
+        "email": "passenger@example.com",
         "password": "StrongPass123",
         "confirm_password": "StrongPass123",
     }
@@ -59,18 +59,18 @@ def test_registration_normalizes_username_and_email(client):
     _register(
         client,
         username="  Rahul_01 ",
-        email=" RAHUL@example.test ",
+        email=" RAHUL@example.com ",
     )
 
     user = User.query.filter_by(username="rahul_01").one()
-    assert user.email == "rahul@example.test"
+    assert user.email == "rahul@example.com"
 
 
 def test_duplicate_username_is_rejected(client):
     _register(client)
     response = _register(
         client,
-        email="different@example.test",
+        email="different@example.com",
     )
 
     assert response.status_code == 409
@@ -81,7 +81,7 @@ def test_mismatched_passwords_are_rejected(client):
     response = _register(client, confirm_password="DifferentPass123")
 
     assert response.status_code == 200
-    assert b"passwords do not match" in response.data
+    assert b"Passwords must match" in response.data
     assert User.query.count() == 0
 
 

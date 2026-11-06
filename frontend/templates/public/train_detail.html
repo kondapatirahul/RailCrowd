@@ -45,6 +45,83 @@
   {% else %}
   <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
   {% endif %}
-  <div class="rc-data-note">This page displays catalog information only. Live running status, schedules, and official occupancy are not provided.</div>
+  <section class="rc-crowd-panel" aria-labelledby="crowd-heading">
+    <div class="rc-results-heading">
+      <div><h2 id="crowd-heading">Current crowd picture</h2>
+        <p>Approved passenger observations from the last {{ crowd_summary.freshness_window_minutes }} minutes.</p>
+      </div>
+      {% if crowd_summary.report_count %}
+        <span class="rc-crowd-confidence">{{ crowd_summary.confidence }} confidence</span>
+      {% endif %}
+    </div>
+    {% if crowd_summary.report_count %}
+      <div class="rc-crowd-overview">
+        <div><small>Community crowd level</small><strong>{{ crowd_summary.crowd_level }}</strong></div>
+        <div><small>Community index</small><strong>{{ crowd_summary.crowd_index }}/100</strong></div>
+        <div><small>Approved reports</small><strong>{{ crowd_summary.report_count }}</strong></div>
+        <div><small>Freshness</small><strong>{{ crowd_summary.freshness }}</strong></div>
+      </div>
+      <h3>Coach-wise crowd</h3>
+      {% if crowd_summary.coaches %}
+        <div class="rc-coach-crowd-list">
+          {% for coach in crowd_summary.coaches %}
+            <article><strong>{{ coach.coach_type }}</strong><span>{{ coach.crowd_level or 'No recent reports' }}</span><small>{{ coach.report_count }} approved report(s)</small></article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No recent reports by coach.</p>
+      {% endif %}
+      {% if crowd_summary.segments %}
+        <h3>Reported route segments</h3>
+        <ul class="rc-segment-crowd-list">
+          {% for segment in crowd_summary.segments %}
+            <li><span>{{ segment.from_station }} → {{ segment.to_station }}</span><strong>{{ segment.crowd_level or 'No recent reports' }}</strong><small>{{ segment.report_count }} report(s)</small></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <div class="rc-empty-state"><h3>No recent reports</h3><p>{{ crowd_summary.freshness }} community observations are available for this train. You can contribute an observation after signing in.</p></div>
+    {% endif %}
+    <p class="rc-data-note">Community observations are not official occupancy, seat availability, live running status or railway-certified information.</p>
+  </section>
+  <section class="rc-recent-reports" aria-labelledby="recent-reports-heading">
+    <div class="rc-results-heading">
+      <div><h2 id="recent-reports-heading">Recent passenger reports</h2>
+        <p>Approved reports from the last 24 hours, with community feedback.</p>
+      </div>
+    </div>
+    {% if verification_reports %}
+      <div class="rc-recent-report-list">
+        {% for item in verification_reports %}
+          <article class="rc-recent-report">
+            <div class="rc-recent-report__top">
+              <strong>{{ item.report.coach_type }}</strong>
+              <span>{{ item.report.crowd_level }} crowd</span>
+              <small>{{ item.reliability }}</small>
+            </div>
+            <p>{{ item.report.from_station }} → {{ item.report.to_station }}</p>
+            {% if item.report.notes %}<p>{{ item.report.notes }}</p>{% endif %}
+            <small>{{ item.report.observed_at.strftime('%d %b %Y, %H:%M UTC') }} · {{ item.confirm_count }} confirmations · {{ item.flag_count }} flags</small>
+            {% if current_user.is_authenticated and current_user.role == 'passenger' and current_user.id != item.report.user_id %}
+              <div class="rc-report-feedback-actions">
+                <form method="post" action="{{ url_for('crowd.report_feedback', report_id=item.report.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="vote_type" value="confirm">
+                  <button type="submit">Confirm</button>
+                </form>
+                <form method="post" action="{{ url_for('crowd.report_feedback', report_id=item.report.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="vote_type" value="flag">
+                  <button type="submit">Flag</button>
+                </form>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No recent approved passenger reports are available for this train.</p>
+    {% endif %}
+  </section>
 </section>
 {% endblock %}

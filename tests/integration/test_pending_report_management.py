@@ -16,18 +16,27 @@ def _seed_report(app, *, owner_id=None, status="pending"):
         passenger = db.session.execute(
             db.select(User).where(User.username == "dashboardpassenger")
         ).scalar_one()
-        source = Station(code="VSKP", name="Visakhapatnam")
-        destination = Station(code="BZA", name="Vijayawada")
-        db.session.add_all([source, destination])
-        db.session.flush()
-        train = Train(number="12727", name="Godavari Express", source_station_id=source.id,
-                      destination_station_id=destination.id, is_active=True)
-        db.session.add(train)
-        db.session.flush()
-        db.session.add_all([
-            TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
-            TrainStop(train_id=train.id, station_id=destination.id, stop_order=2),
-        ])
+        source = db.session.execute(
+            db.select(Station).where(Station.code == "VSKP")
+        ).scalar_one()
+        destination = db.session.execute(
+            db.select(Station).where(Station.code == "BZA")
+        ).scalar_one_or_none()
+        if destination is None:
+            destination = Station(code="BZA", name="Vijayawada")
+            db.session.add(destination)
+            db.session.flush()
+        train = db.session.execute(
+            db.select(Train).where(Train.number == "12727")
+        ).scalar_one()
+        train.source_station_id = source.id
+        train.destination_station_id = destination.id
+        if not train.stops:
+            db.session.flush()
+            db.session.add_all([
+                TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
+                TrainStop(train_id=train.id, station_id=destination.id, stop_order=2),
+            ])
         report = CrowdReport(user_id=owner_id or passenger.id, train_number="12727",
                              train_name="Godavari Express", from_station="Visakhapatnam",
                              to_station="Vijayawada", coach_type="Sleeper",

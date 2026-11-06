@@ -14,7 +14,7 @@
                     </div>
                 {% endif %}
 
-                <form method="post" novalidate>
+                <form method="post" action="{{ url_for('authentication.login') }}" novalidate>
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         {{ form.identifier.label(class="form-label") }}
