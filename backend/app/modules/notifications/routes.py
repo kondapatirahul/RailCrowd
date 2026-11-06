@@ -1,11 +1,15 @@
-"""Passenger notification centre and saved-train routes."""
+"""Passenger notification centre, saved trains, and preferences."""
 
 from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 from backend.app.extensions import db
-from backend.app.models.notification import Notification, NotificationPreference, SavedTrain
+from backend.app.models.notification import (
+    Notification,
+    NotificationPreference,
+    SavedTrain,
+)
 from backend.app.modules.notifications import notifications_bp
 
 
@@ -46,9 +50,14 @@ def mark_read(notification_id):
 @login_required
 def mark_all_read():
     _require_passenger()
-    db.session.execute(update(Notification).where(
-        Notification.user_id == current_user.id, Notification.is_read.is_(False)
-    ).values(is_read=True))
+    db.session.execute(
+        db.update(Notification)
+        .where(
+            Notification.user_id == current_user.id,
+            Notification.is_read.is_(False),
+        )
+        .values(is_read=True)
+    )
     db.session.commit()
     flash("All notifications marked as read.", "success")
     return redirect(url_for("notifications.inbox"), code=303)
@@ -73,9 +82,13 @@ def save_train():
     if not number or len(number) > 10 or not name or len(name) > 160:
         flash("Please provide a valid train number and name.", "danger")
         return redirect(request.referrer or url_for("notifications.saved_trains"), code=303)
-    existing = db.session.execute(select(SavedTrain).where(
-        SavedTrain.user_id == current_user.id, SavedTrain.train_number == number
-    )).scalar_one_or_none()
+
+    existing = db.session.execute(
+        select(SavedTrain).where(
+            SavedTrain.user_id == current_user.id,
+            SavedTrain.train_number == number,
+        )
+    ).scalar_one_or_none()
     if existing is None:
         db.session.add(SavedTrain(user_id=current_user.id, train_number=number, train_name=name))
         db.session.commit()
@@ -117,4 +130,5 @@ def preferences():
         db.session.commit()
         flash("Notification preferences updated.", "success")
         return redirect(url_for("notifications.preferences"), code=303)
+
     return render_template("passenger/notification_preferences.html", preference=preference)

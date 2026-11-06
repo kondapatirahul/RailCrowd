@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+{% block title %}My Community Reputation | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/passenger_reputation.css') }}">
+{% endblock %}
+{% block content %}
+<main class="rc-reputation-page">
+  <header class="rc-reputation-header">
+    <div>
+      <span class="rc-reputation-eyebrow">YOUR COMMUNITY IMPACT</span>
+      <h1>Contribution reputation</h1>
+      <p>Your score is based on approved reports and feedback from other passengers.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('passenger.dashboard') }}">Back to dashboard</a>
+  </header>
+
+  {% if reputation %}
+  <section class="rc-reputation-hero">
+    <div>
+      <span class="rc-trust-level">{{ reputation.trust_level }}</span>
+      <h2>{{ reputation.display_name }}</h2>
+      <p>Community contribution score</p>
+    </div>
+    <strong class="rc-reputation-score">{{ reputation.score }}</strong>
+  </section>
+
+  <section class="rc-reputation-metrics" aria-label="Contribution metrics">
+    <article><span>Approved reports</span><strong>{{ reputation.approved_reports }}</strong></article>
+    <article><span>Pending review</span><strong>{{ reputation.pending_reports }}</strong></article>
+    <article><span>Rejected reports</span><strong>{{ reputation.rejected_reports }}</strong></article>
+    <article><span>Confirmations received</span><strong>{{ reputation.confirmations }}</strong></article>
+    <article><span>Community flags</span><strong>{{ reputation.flags }}</strong></article>
+    <article><span>Helpful feedback ratio</span><strong>{{ (reputation.helpful_ratio|string + '%') if reputation.helpful_ratio is not none else '—' }}</strong></article>
+  </section>
+  {% endif %}
+
+  <section class="rc-reputation-rules">
+    <h2>How your score works</h2>
+    <ul>
+      <li><strong>+5 points</strong> for each report approved by an administrator.</li>
+      <li><strong>+2 points</strong> for each confirmation received on your approved reports.</li>
+      <li><strong>−2 points</strong> for each community flag received. The total score cannot go below zero.</li>
+    </ul>
+    <p>Trust levels are descriptive contribution milestones, not identity verification or a guarantee that every report is correct.</p>
+  </section>
+
+  <section class="rc-reputation-leaderboard">
+    <div class="rc-reputation-section-heading">
+      <div><h2>Community leaderboard</h2><p>Passengers with approved contributions.</p></div>
+      <a href="{{ url_for('passenger.leaderboard') }}">View full leaderboard</a>
+    </div>
+    {% if leaderboard %}
+    <ol class="rc-leaderboard-list">
+      {% for item in leaderboard[:5] %}
+      <li><span class="rc-leaderboard-rank">{{ loop.index }}</span><span class="rc-leaderboard-name">{{ item.display_name }}</span><span class="rc-leaderboard-tier">{{ item.trust_level }}</span><strong>{{ item.score }}</strong></li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="rc-reputation-empty">No approved contributions yet.</p>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}
