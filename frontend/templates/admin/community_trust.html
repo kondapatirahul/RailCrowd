@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+{% block title %}Community Trust Review | RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_community_trust.css') }}">
+{% endblock %}
+{% block content %}
+<main class="rc-trust-admin">
+  <header><div><span>ADMINISTRATION / COMMUNITY QUALITY</span><h1>Community trust review</h1><p>Accounts with repeated report flags for manual review.</p></div><a class="btn btn-outline-secondary" href="{{ url_for('admin.report_queue') }}">Report moderation</a></header>
+  <div class="rc-trust-admin-notice"><strong>Review signals only.</strong> A high flag ratio is not proof of abuse. Review the underlying reports and context before taking action.</div>
+  {% if risks %}
+  <div class="rc-trust-risk-list">
+    {% for item in risks %}
+    <article>
+      <div><h2>{{ item.display_name }}</h2><span>Passenger ID {{ item.user_id }}</span></div>
+      <strong class="rc-risk-ratio">{{ item.flag_ratio }}% flagged</strong>
+      <p>{{ item.reason }}</p>
+      <dl><div><dt>Approved reports</dt><dd>{{ item.approved_reports }}</dd></div><div><dt>Confirmations</dt><dd>{{ item.confirmations }}</dd></div><div><dt>Flags</dt><dd>{{ item.flags }}</dd></div><div><dt>Score</dt><dd>{{ item.score }}</dd></div></dl>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="rc-trust-empty"><h2>No review signals</h2><p>No accounts currently meet the repeated-flag threshold.</p></div>
+  {% endif %}
+</main>
+{% endblock %}

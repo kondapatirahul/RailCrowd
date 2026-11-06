@@ -13,11 +13,10 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/">RailCrowd</a>
-        <a class="btn btn-link btn-sm text-decoration-none" href="{{ url_for('trains.search') }}">Find trains</a>
         <div class="ms-auto d-flex align-items-center gap-2">
             {% if current_user.is_authenticated %}
                 {% if current_user.is_admin %}
-                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.dashboard') }}">Admin</a>
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('admin.report_queue') }}">Moderation</a>
                 {% else %}
                     <a class="btn btn-outline-primary btn-sm" href="{{ url_for('passenger.dashboard') }}">Dashboard</a>
                     <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('notifications.inbox') }}">Notifications</a>
@@ -34,7 +33,6 @@
         </div>
     </div>
 </nav>
-
 <main class="container py-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

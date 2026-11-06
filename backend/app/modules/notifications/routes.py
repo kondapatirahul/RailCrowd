@@ -1,11 +1,15 @@
-"""Passenger notification centre and saved-train list."""
+"""Passenger notification centre, saved trains, and preferences."""
 
 from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import select, update
+from sqlalchemy import select
 
 from backend.app.extensions import db
-from backend.app.models.notification import Notification, NotificationPreference, SavedTrain
+from backend.app.models.notification import (
+    Notification,
+    NotificationPreference,
+    SavedTrain,
+)
 from backend.app.modules.notifications import notifications_bp
 
 
@@ -46,7 +50,7 @@ def mark_read(notification_id):
         abort(404)
     item.is_read = True
     db.session.commit()
-    return redirect(url_for("notifications.inbox"), code=303)
+    return redirect(request.referrer or url_for("notifications.inbox"), code=303)
 
 
 @notifications_bp.post("/read-all")
@@ -54,7 +58,7 @@ def mark_read(notification_id):
 def mark_all_read():
     _require_passenger()
     db.session.execute(
-        update(Notification)
+        db.update(Notification)
         .where(
             Notification.user_id == current_user.id,
             Notification.is_read.is_(False),
@@ -86,7 +90,7 @@ def save_train():
     name = (request.form.get("train_name") or "").strip()
     if not number or len(number) > 10 or not name or len(name) > 160:
         flash("Please provide a valid train number and name.", "danger")
-        return redirect(url_for("notifications.saved_trains"), code=303)
+        return redirect(request.referrer or url_for("notifications.saved_trains"), code=303)
 
     existing = db.session.execute(
         select(SavedTrain).where(
@@ -102,7 +106,7 @@ def save_train():
         flash(f"{number} added to your saved trains.", "success")
     else:
         flash(f"{number} is already saved.", "info")
-    return redirect(url_for("notifications.saved_trains"), code=303)
+    return redirect(request.referrer or url_for("notifications.saved_trains"), code=303)
 
 
 @notifications_bp.post("/saved-trains/<int:saved_train_id>/remove")
@@ -144,6 +148,4 @@ def preferences():
         flash("Notification preferences updated.", "success")
         return redirect(url_for("notifications.preferences"), code=303)
 
-    return render_template(
-        "passenger/notification_preferences.html", preference=preference
-    )
+    return render_template("passenger/notification_preferences.html", preference=preference)

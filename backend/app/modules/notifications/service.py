@@ -4,7 +4,11 @@ from sqlalchemy import select
 
 from backend.app.extensions import db
 from backend.app.models.crowd_report import CrowdReport
-from backend.app.models.notification import Notification, NotificationPreference, SavedTrain
+from backend.app.models.notification import (
+    Notification,
+    NotificationPreference,
+    SavedTrain,
+)
 
 
 def _preference_for(user_id):
