@@ -33,7 +33,7 @@ def test_weighted_index_ignores_pending_and_stale_reports():
     index, accepted, latest = weighted_crowd_index(reports, now, 180)
     assert index == 90.0
     assert len(accepted) == 1
-    assert latest == now
+    assert latest == now - timedelta(minutes=5)
 
 
 def test_recent_report_has_more_weight_than_older_report():

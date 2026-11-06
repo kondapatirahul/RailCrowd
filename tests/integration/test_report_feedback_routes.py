@@ -8,17 +8,21 @@ from backend.app.models.user import User
 def _seed_approved_report(app):
     with app.app_context():
         author = db.session.query(User).filter_by(username="dashboardpassenger").one()
-        source = Station(code="VSKP", name="Visakhapatnam", city="Visakhapatnam")
-        destination = Station(code="RJY", name="Rajahmundry", city="Rajahmundry")
-        db.session.add_all([source, destination])
-        db.session.flush()
-        train = Train(
-            number="12727",
-            name="Godavari Express",
-            source_station_id=source.id,
-            destination_station_id=destination.id,
-        )
-        db.session.add(train)
+        source = db.session.execute(
+            db.select(Station).where(Station.code == "VSKP")
+        ).scalar_one()
+        destination = db.session.execute(
+            db.select(Station).where(Station.code == "RJY")
+        ).scalar_one_or_none()
+        if destination is None:
+            destination = Station(code="RJY", name="Rajahmundry", city="Rajahmundry")
+            db.session.add(destination)
+            db.session.flush()
+        train = db.session.execute(
+            db.select(Train).where(Train.number == "12727")
+        ).scalar_one()
+        train.source_station_id = source.id
+        train.destination_station_id = destination.id
         report = CrowdReport(
             user_id=author.id,
             train_number="12727",

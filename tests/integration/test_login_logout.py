@@ -8,14 +8,10 @@ from backend.app.models.user import User
 @pytest.fixture
 def passenger(app):
     with app.app_context():
-        user = User(
-            full_name="Test Passenger",
-            username="testpassenger",
-            email="passenger@example.com",
-            role="passenger",
-        )
+        user = db.session.execute(
+            db.select(User).where(User.username == "testpassenger")
+        ).scalar_one()
         user.set_password("StrongPass123")
-        db.session.add(user)
         db.session.commit()
         user_id = user.id
     return user_id
@@ -72,11 +68,11 @@ def test_external_next_url_is_rejected(client, passenger):
     response = client.post(
         "/login?next=https://example.com",
         data={"identifier": "testpassenger", "password": "StrongPass123"},
-        follow_redirects=True,
+        follow_redirects=False,
     )
-    assert response.status_code == 200
-    assert b"Welcome back" in response.data
-    assert b"example.com" not in response.data
+    assert response.status_code in (302, 303)
+    assert response.headers["Location"].startswith("/")
+    assert "example.com" not in response.headers["Location"]
 
 
 def test_logout_requires_authenticated_user(client, passenger):

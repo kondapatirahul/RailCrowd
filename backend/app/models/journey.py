@@ -117,17 +117,34 @@ class JourneyLeg(TimestampMixin, db.Model):
 
     def to_dict(self) -> dict:
         return {
-            "order": self.leg_order, "train_number": self.train_number,
+            "order": self.leg_order,
+            "train_number": self.train_number,
             "train_name": self.train_name,
+            # Keep both flat fields (used by the planner, readiness checks and
+            # server-rendered templates) and grouped station objects (used by
+            # API consumers). These aliases share the same saved snapshot.
+            "from_code": self.from_code,
+            "from_name": self.from_name,
+            "to_code": self.to_code,
+            "to_name": self.to_name,
+            "origin_code": self.from_code,
+            "origin_name": self.from_name,
+            "destination_code": self.to_code,
+            "destination_name": self.to_name,
             "from": {"code": self.from_code, "name": self.from_name},
             "to": {"code": self.to_code, "name": self.to_name},
-            "departure": self.departure_time, "arrival": self.arrival_time,
+            "departure": self.departure_time,
+            "arrival": self.arrival_time,
+            "departure_time": self.departure_time,
+            "arrival_time": self.arrival_time,
             "departure_offset_days": self.departure_offset_days,
             "arrival_offset_days": self.arrival_offset_days,
             "duration_minutes": self.duration_minutes,
             "distance_km": self.distance_km,
             "coach_preference": self.coach_preference,
             "crowd": self.crowd_snapshot,
+            "crowd_snapshot": self.crowd_snapshot,
+            "timetable": self.timetable_snapshot,
         }
 
 

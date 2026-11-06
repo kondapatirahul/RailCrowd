@@ -17,16 +17,28 @@ def test_passenger_cannot_edit_or_delete_another_users_report(dashboard_app, das
                      email="other@example.com", role="passenger")
         owner.set_password("StrongPass123")
         db.session.add(owner)
-        source = Station(code="VSKP", name="Visakhapatnam")
-        destination = Station(code="BZA", name="Vijayawada")
-        db.session.add_all([source, destination])
+        source = db.session.execute(
+            db.select(Station).where(Station.code == "VSKP")
+        ).scalar_one()
+        destination = db.session.execute(
+            db.select(Station).where(Station.code == "BZA")
+        ).scalar_one_or_none()
+        if destination is None:
+            destination = Station(code="BZA", name="Vijayawada")
+            db.session.add(destination)
+            db.session.flush()
+        train = db.session.execute(
+            db.select(Train).where(Train.number == "12727")
+        ).scalar_one()
+        train.source_station_id = source.id
+        train.destination_station_id = destination.id
+        train.is_active = True
         db.session.flush()
-        train = Train(number="12727", name="Godavari Express", source_station_id=source.id,
-                      destination_station_id=destination.id, is_active=True)
-        db.session.add(train)
-        db.session.flush()
-        db.session.add_all([TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
-                            TrainStop(train_id=train.id, station_id=destination.id, stop_order=2)])
+        if not train.stops:
+            db.session.add_all([
+                TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
+                TrainStop(train_id=train.id, station_id=destination.id, stop_order=2),
+            ])
         report = CrowdReport(user_id=owner.id, train_number="12727", train_name=train.name,
                              from_station=source.name, to_station=destination.name,
                              coach_type="Sleeper", crowd_level="Moderate", status="pending")

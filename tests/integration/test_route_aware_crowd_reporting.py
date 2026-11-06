@@ -15,25 +15,35 @@ def _login(client):
 
 def _seed_route(app):
     with app.app_context():
-        source = Station(code="VSKP", name="Visakhapatnam")
-        middle = Station(code="RJY", name="Rajahmundry")
-        destination = Station(code="BZA", name="Vijayawada")
-        db.session.add_all([source, middle, destination])
+        source = db.session.execute(
+            db.select(Station).where(Station.code == "VSKP")
+        ).scalar_one()
+        middle = db.session.execute(
+            db.select(Station).where(Station.code == "RJY")
+        ).scalar_one_or_none()
+        if middle is None:
+            middle = Station(code="RJY", name="Rajahmundry")
+            db.session.add(middle)
+        destination = db.session.execute(
+            db.select(Station).where(Station.code == "BZA")
+        ).scalar_one_or_none()
+        if destination is None:
+            destination = Station(code="BZA", name="Vijayawada")
+            db.session.add(destination)
         db.session.flush()
-        train = Train(
-            number="12727",
-            name="Godavari Express",
-            source_station_id=source.id,
-            destination_station_id=destination.id,
-            is_active=True,
-        )
-        db.session.add(train)
+        train = db.session.execute(
+            db.select(Train).where(Train.number == "12727")
+        ).scalar_one()
+        train.source_station_id = source.id
+        train.destination_station_id = destination.id
+        train.is_active = True
         db.session.flush()
-        db.session.add_all([
-            TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
-            TrainStop(train_id=train.id, station_id=middle.id, stop_order=2),
-            TrainStop(train_id=train.id, station_id=destination.id, stop_order=3),
-        ])
+        if not train.stops:
+            db.session.add_all([
+                TrainStop(train_id=train.id, station_id=source.id, stop_order=1),
+                TrainStop(train_id=train.id, station_id=middle.id, stop_order=2),
+                TrainStop(train_id=train.id, station_id=destination.id, stop_order=3),
+            ])
         db.session.commit()
 
 

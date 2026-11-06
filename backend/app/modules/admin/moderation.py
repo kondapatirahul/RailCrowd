@@ -4,10 +4,12 @@ from datetime import datetime, timezone
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from backend.app.extensions import db
 from backend.app.models.crowd_report import CrowdReport
+from backend.app.models.train import Train
+from backend.app.models.user import User
 from backend.app.modules.admin.forms import ModerationForm
 from backend.app.modules.admin.services import get_moderation_counts
 from backend.app.modules.notifications.service import notify_report_moderation
@@ -17,6 +19,21 @@ from backend.app.modules.passenger.services.reputation_service import (
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 VALID_FILTERS = {"pending", "approved", "rejected", "all"}
+
+
+@admin_bp.get("/")
+@login_required
+def dashboard():
+    """Render the admin landing page with lightweight platform totals."""
+    _require_admin()
+    users = db.session.scalar(select(func.count(User.id))) or 0
+    trains = db.session.scalar(select(func.count(Train.id))) or 0
+    return render_template(
+        "admin/dashboard.html",
+        counts=get_moderation_counts(),
+        users=users,
+        trains=trains,
+    )
 
 
 def _require_admin():

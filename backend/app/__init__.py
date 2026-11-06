@@ -22,6 +22,11 @@ def create_app(config_object: Any | None = None) -> Flask:
         selected_config.apply_environment(app)
         if config_name == "production": selected_config.validate(app)
     elif isinstance(config_object, dict):
+        # Partial mappings override the standard defaults rather than replacing
+        # them. Flask-SQLAlchemy requires a database URI even in small factory
+        # tests that only set TESTING or feature flags.
+        from backend.app.config import Config
+        app.config.from_object(Config)
         app.config.from_mapping(config_object)
     else:
         app.config.from_object(config_object)
