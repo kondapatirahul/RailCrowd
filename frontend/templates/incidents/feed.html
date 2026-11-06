@@ -56,10 +56,10 @@
       <div class="filter-panel__foot"><span class="filter-live-dot"></span><span>Community updates are time-sensitive</span></div>
     </aside>
     <div class="incident-feed-main">
-      <header class="feed-heading"><div><span class="incident-eyebrow">PASSENGER OBSERVATIONS</span><h2>Disruption feed <span>{{ feed.total }}</span></h2><p>Reports are reviewed and may change as passengers add information.</p></div><div class="feed-tools"><a href="{{ url_for('incidents.export_csv') }}" class="tool-link">Export CSV</a><a href="{{ url_for('incidents.export_json') }}" class="tool-link">JSON</a></div></header>
-      {% if feed.items %}
+      <header class="feed-heading"><div><span class="incident-eyebrow">PASSENGER OBSERVATIONS</span><h2>Disruption feed <span>{{ feed_total }}</span></h2><p>Reports are reviewed and may change as passengers add information.</p></div><div class="feed-tools"><a href="{{ url_for('incidents.export_csv') }}" class="tool-link">Export CSV</a><a href="{{ url_for('incidents.export_json') }}" class="tool-link">JSON</a></div></header>
+      {% if feed_rows %}
       <div class="incident-card-list">
-        {% for item in feed.items %}
+        {% for item in feed_rows %}
         <article class="incident-card incident-card--{{ item.severity }}" data-incident-card data-id="{{ item.id }}">
           <div class="incident-card__rail"><span class="severity-mark severity-mark--{{ item.severity }}">{{ '!' if item.severity in ['major','critical'] else 'i' }}</span><span class="incident-card__rail-line"></span></div>
           <div class="incident-card__body">
@@ -73,7 +73,7 @@
         </article>
         {% endfor %}
       </div>
-      {% if feed.pages > 1 %}<nav class="feed-pagination" aria-label="Incident feed pages">{% if feed.page > 1 %}<a href="?page={{ feed.page - 1 }}">← Previous</a>{% endif %}<span>Page {{ feed.page }} of {{ feed.pages }}</span>{% if feed.page < feed.pages %}<a href="?page={{ feed.page + 1 }}">Next →</a>{% endif %}</nav>{% endif %}
+      {% if feed_pages > 1 %}<nav class="feed-pagination" aria-label="Incident feed pages">{% if feed_page > 1 %}<a href="?page={{ feed_page - 1 }}">← Previous</a>{% endif %}<span>Page {{ feed_page }} of {{ feed_pages }}</span>{% if feed_page < feed_pages %}<a href="?page={{ feed_page + 1 }}">Next →</a>{% endif %}</nav>{% endif %}
       {% else %}
       <div class="incident-empty"><div class="incident-empty__art">⌁</div><h3>No matching disruptions</h3><p>Try a wider time window or remove one of your filters. You can also submit a new observation.</p><a href="{{ url_for('incidents.feed_page') }}">Clear filters</a></div>
       {% endif %}
