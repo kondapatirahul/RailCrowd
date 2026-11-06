@@ -1,4 +1,4 @@
-"""Notification delivery and passenger notification routes."""
+"""Passenger notification routes."""
 
 from flask import Blueprint
 
