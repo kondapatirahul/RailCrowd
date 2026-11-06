@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Any
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, render_template
 
 
 def create_app(config_object: Any | None = None) -> Flask:
@@ -22,11 +22,6 @@ def create_app(config_object: Any | None = None) -> Flask:
         selected_config.apply_environment(app)
         if config_name == "production": selected_config.validate(app)
     elif isinstance(config_object, dict):
-        # Partial mappings override the standard defaults rather than replacing
-        # them. Flask-SQLAlchemy requires a database URI even in small factory
-        # tests that only set TESTING or feature flags.
-        from backend.app.config import Config
-        app.config.from_object(Config)
         app.config.from_mapping(config_object)
     else:
         app.config.from_object(config_object)
@@ -52,6 +47,12 @@ def create_app(config_object: Any | None = None) -> Flask:
     app.register_blueprint(journeys_bp)
     app.register_blueprint(incidents_bp)
     app.register_blueprint(trains_bp, url_prefix="/trains")
+
+    # Keep the public landing page available at the site root for all visitors.
+    def _render_public_home():
+        return render_template("public/home.html")
+
+    app.add_url_rule("/", endpoint="public_home", view_func=_render_public_home, methods=["GET"])
     import backend.app.models.user  # noqa: F401
     import backend.app.models.crowd_report  # noqa: F401
     import backend.app.models.station  # noqa: F401

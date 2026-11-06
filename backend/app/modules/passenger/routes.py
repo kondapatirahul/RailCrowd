@@ -14,16 +14,6 @@ from backend.app.modules.passenger.services.reputation_service import (
 passenger_bp = Blueprint("passenger", __name__)
 
 
-@passenger_bp.get("/")
-def index():
-    """Send visitors to sign-in and authenticated passengers to their dashboard."""
-    if current_user.is_authenticated:
-        if current_user.role != "passenger":
-            abort(403)
-        return redirect(url_for("passenger.dashboard"))
-    return redirect(url_for("authentication.login"))
-
-
 @passenger_bp.get("/dashboard")
 @login_required
 def dashboard():

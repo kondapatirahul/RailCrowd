@@ -1,0 +1,28 @@
+/* RailCrowd responsive navigation: one compact row on desktop, collapsible on smaller screens. */
+.rc-navbar { min-height: 70px; position: relative; z-index: 1000; }
+.rc-navbar-container { gap: 1.25rem; }
+.rc-navbar .navbar-brand { flex: 0 0 auto; margin-right: .75rem; padding: .35rem .55rem; border: 1px solid #dce5ed; border-radius: .45rem; color: #12314a !important; font-size: 1.3rem; letter-spacing: -.045em; }
+.rc-navbar .navbar-collapse { min-width: 0; align-items: center; }
+.rc-primary-nav { align-items: center; gap: .15rem; }
+.rc-primary-nav .nav-link { padding: .55rem .65rem !important; color: #31506d; font-size: .91rem; font-weight: 550; white-space: nowrap; border-radius: .45rem; }
+.rc-primary-nav .nav-link:hover, .rc-primary-nav .nav-link:focus { color: #087f78; background: #eef8f7; }
+.rc-account-nav { display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .45rem; }
+.rc-user-name { max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-account-nav form { display: inline-flex; }
+@media (min-width: 1200px) and (max-width: 1450px) {
+  .rc-navbar-container { gap: .75rem; }
+  .rc-primary-nav .nav-link { padding-inline: .42rem !important; font-size: .85rem; }
+  .rc-account-nav { gap: .3rem; }
+}
+@media (max-width: 1199.98px) {
+  .rc-navbar-container { flex-wrap: wrap; }
+  .rc-navbar .navbar-collapse { flex-basis: 100%; padding: .65rem 0 .9rem; }
+  .rc-primary-nav { align-items: stretch; gap: .1rem; }
+  .rc-primary-nav .nav-link { padding: .55rem .7rem !important; }
+  .rc-account-nav { justify-content: flex-start; padding-top: .65rem; border-top: 1px solid #edf1f5; }
+}
+@media (max-width: 575.98px) {
+  .rc-navbar-container { padding-inline: 1rem; }
+  .rc-account-nav { align-items: flex-start; }
+  .rc-user-name { display: none; }
+}
