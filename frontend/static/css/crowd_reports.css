@@ -44,3 +44,14 @@
     .rc-form-footer .btn { width: 100%; }
     .rc-report-item { padding: 16px; }
 }
+
+
+/* Pending report actions */
+.rc-report-item .rc-report-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+.rc-report-item .rc-report-actions form { margin: 0; }
