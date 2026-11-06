@@ -26,3 +26,33 @@
     width: 100%;
   }
 }
+
+
+/* Searchable train selector used by the passenger report form. */
+.rc-route-report .rc-report-train-search {
+  display: flex;
+  align-items: stretch;
+  gap: .65rem;
+}
+.rc-route-report .rc-report-train-search .form-control { min-width: 0; flex: 1; }
+.rc-route-report .rc-report-train-search .btn { white-space: nowrap; font-weight: 650; }
+.rc-route-report .rc-report-search-results { margin-top: .65rem; }
+.rc-route-report .rc-report-search-message { margin: .45rem 0; color: #64748b; font-size: .88rem; }
+.rc-route-report .rc-report-search-message.is-error { color: #b91c1c; }
+.rc-route-report .rc-report-search-message.is-success { color: #15803d; }
+.rc-route-report .rc-report-search-list { display: grid; gap: .5rem; }
+.rc-route-report .rc-report-search-result {
+  display: flex; flex-direction: column; align-items: flex-start; gap: .2rem;
+  width: 100%; padding: .75rem .9rem; text-align: left; cursor: pointer;
+  border: 1px solid #dbe4f0; border-radius: .7rem; background: #fff; color: #0f172a;
+}
+.rc-route-report .rc-report-search-result:hover,
+.rc-route-report .rc-report-search-result:focus-visible {
+  border-color: #647fe8; background: #f7f9ff; outline: none;
+  box-shadow: 0 0 0 .18rem rgba(100, 127, 232, .12);
+}
+.rc-route-report .rc-report-search-result span { color: #64748b; font-size: .85rem; }
+@media (max-width: 575.98px) {
+  .rc-route-report .rc-report-train-search { flex-direction: column; }
+  .rc-route-report .rc-report-train-search .btn { width: 100%; }
+}
