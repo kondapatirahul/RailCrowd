@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+{% block title %}Journey Planner · RailCrowd{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/journeys/planner.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/journeys/results.css') }}">
+{% endblock %}
+{% block content %}
+<section class="journey-hero">
+    <div class="journey-hero__copy">
+        <span class="eyebrow">COMMUNITY JOURNEY WORKSPACE</span>
+        <h1>Plan the whole journey, not just the train.</h1>
+        <p>Compare timetable options, understand transfer windows, review recent community crowd observations and keep your travel checklist in one place.</p>
+        <div class="journey-hero__signals">
+            <span><i class="signal-dot signal-dot--blue"></i> Timetable catalogue</span>
+            <span><i class="signal-dot signal-dot--green"></i> Community crowd context</span>
+            <span><i class="signal-dot signal-dot--amber"></i> Transfer guidance</span>
+        </div>
+    </div>
+    <div class="journey-hero__art" aria-hidden="true">
+        <div class="route-art route-art--one"></div>
+        <div class="route-art route-art--two"></div>
+        <div class="route-art__station route-art__station--a">A</div>
+        <div class="route-art__station route-art__station--b">B</div>
+        <div class="route-art__station route-art__station--c">C</div>
+        <div class="route-art__train"><span></span><span></span><span></span></div>
+    </div>
+</section>
+<section class="planner-layout" aria-labelledby="planner-heading">
+    <div class="planner-panel">
+        <div class="section-heading">
+            <div><span class="eyebrow">START HERE</span><h2 id="planner-heading">Your journey</h2></div>
+            <span class="step-chip">01 / PLAN</span>
+        </div>
+        <form id="journey-search-form" class="journey-form" data-search-url="{{ url_for('journeys.search_api') }}" data-save-url="{{ url_for('journeys.save_api') }}" data-station-url="{{ url_for('journeys.station_search_api') }}" data-login-url="{{ url_for('authentication.login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="station-pair">
+                <div class="field-group station-field" data-station-field>
+                    <label for="journey-origin">From</label>
+                    <div class="station-input-wrap"><span class="station-input-icon">●</span><input id="journey-origin" name="origin" autocomplete="off" placeholder="Station name or code" required><input type="hidden" id="journey-origin-code" name="origin_code"><button type="button" class="field-clear" data-clear-station="origin" aria-label="Clear origin">×</button></div>
+                    <div class="station-suggestions" data-suggestions="origin" role="listbox" hidden></div>
+                    <small class="field-hint" id="origin-hint">Search by station name, code or city.</small>
+                </div>
+                <button type="button" class="swap-stations" id="swap-stations" aria-label="Swap origin and destination">⇅</button>
+                <div class="field-group station-field" data-station-field>
+                    <label for="journey-destination">To</label>
+                    <div class="station-input-wrap"><span class="station-input-icon">◆</span><input id="journey-destination" name="destination" autocomplete="off" placeholder="Station name or code" required><input type="hidden" id="journey-destination-code" name="destination_code"><button type="button" class="field-clear" data-clear-station="destination" aria-label="Clear destination">×</button></div>
+                    <div class="station-suggestions" data-suggestions="destination" role="listbox" hidden></div>
+                    <small class="field-hint" id="destination-hint">Choose a station from the catalogue.</small>
+                </div>
+            </div>
+            <div class="form-grid form-grid--three">
+                <div class="field-group"><label for="travel-date">Travel date</label><input id="travel-date" name="travel_date" type="date" required></div>
+                <div class="field-group"><label for="passenger-count">Passengers</label><select id="passenger-count" name="passenger_count">{% for count in range(1, 13) %}<option value="{{ count }}" {% if count == 1 %}selected{% endif %}>{{ count }} passenger{% if count != 1 %}s{% endif %}</option>{% endfor %}</select></div>
+                <div class="field-group"><label for="journey-sort">Prioritize</label><select id="journey-sort" name="sort"><option value="balanced">Balanced journey</option><option value="fastest">Fastest overall</option><option value="fewest_transfers">Fewer transfers</option><option value="lower_crowd">Lower crowd signals</option><option value="earliest">Earlier departure</option></select></div>
+            </div>
+            <div class="planner-advanced" id="planner-advanced">
+                <button type="button" class="advanced-toggle" aria-expanded="false" aria-controls="advanced-fields" id="advanced-toggle"><span>Advanced preferences</span><span class="advanced-toggle__icon">＋</span></button>
+                <div class="advanced-fields" id="advanced-fields" hidden>
+                    <div class="form-grid form-grid--three">
+                        <div class="field-group"><label for="max-transfers">Maximum transfers</label><select id="max-transfers" name="max_transfers"><option value="0" {% if preferences and preferences.max_transfers == 0 %}selected{% endif %}>Direct only</option><option value="1" {% if not preferences or preferences.max_transfers == 1 %}selected{% endif %}>Up to 1 transfer</option><option value="2" {% if preferences and preferences.max_transfers == 2 %}selected{% endif %}>Up to 2 transfers</option></select></div>
+                        <div class="field-group"><label for="min-transfer">Minimum transfer buffer</label><select id="min-transfer" name="min_transfer_minutes"><option value="20" {% if preferences and preferences.min_transfer_minutes == 20 %}selected{% endif %}>20 minutes</option><option value="35" {% if not preferences or preferences.min_transfer_minutes == 35 %}selected{% endif %}>35 minutes</option><option value="45" {% if preferences and preferences.min_transfer_minutes == 45 %}selected{% endif %}>45 minutes</option><option value="60" {% if preferences and preferences.min_transfer_minutes == 60 %}selected{% endif %}>60 minutes</option><option value="90" {% if preferences and preferences.min_transfer_minutes == 90 %}selected{% endif %}>90 minutes</option></select></div>
+                        <div class="field-group"><label for="departure-window">Departure window</label><select id="departure-window" name="departure_window"><option value="any">Any time</option><option value="05:00-11:00">Morning · 05:00–11:00</option><option value="11:00-17:00">Afternoon · 11:00–17:00</option><option value="17:00-23:00">Evening · 17:00–23:00</option><option value="23:00-05:00">Night · 23:00–05:00</option></select></div>
+                    </div>
+                    <fieldset class="preference-fieldset"><legend>Preferred train categories</legend>
+                        {% for key,label in [('express','Express'),('superfast','Superfast'),('mail','Mail / Express Mail'),('passenger','Passenger'),('suburban','Suburban'),('vande_bharat','Vande Bharat'),('special','Special'),('other','Other')] %}<label class="choice-row"><input type="checkbox" name="train_types" value="{{ key }}" {% if preferences and key in preferences.preferred_train_types %}checked{% endif %}><span><strong>{{ label }}</strong></span></label>{% endfor %}
+                    </fieldset>
+                    <fieldset class="preference-fieldset"><legend>Travel preferences</legend>
+                        <label class="choice-row"><input type="checkbox" name="avoid_overnight" value="true" {% if preferences and preferences.avoid_overnight %}checked{% endif %}><span><strong>Avoid overnight arrival</strong><small>Prefer options that do not cross midnight.</small></span></label>
+                        <label class="choice-row"><input type="checkbox" name="avoid_high_crowd" value="true" {% if not preferences or preferences.avoid_high_crowd %}checked{% endif %}><span><strong>Consider crowd reports</strong><small>Use recent approved community reports when available.</small></span></label>
+                        <label class="choice-row"><input type="checkbox" name="accessibility_required" value="true" {% if preferences and preferences.accessibility_required %}checked{% endif %}><span><strong>Accessibility-aware planning</strong><small>Show a reminder to verify station assistance and facilities.</small></span></label>
+                    </fieldset>
+                    <div class="form-grid form-grid--three planner-constraint-grid">
+                        <div class="field-group"><label for="max-duration">Maximum total duration</label><select id="max-duration" name="max_duration_minutes"><option value="">No limit</option><option value="360">6 hours</option><option value="720">12 hours</option><option value="1080">18 hours</option><option value="1440">24 hours</option><option value="2160">36 hours</option><option value="2880">48 hours</option></select></div>
+                        <div class="field-group"><label for="max-crowd-score">Maximum crowd score</label><select id="max-crowd-score" name="max_crowd_score"><option value="">No limit</option><option value="1.5">1.5 / 4</option><option value="2">2 / 4</option><option value="2.5">2.5 / 4</option><option value="3">3 / 4</option><option value="3.5">3.5 / 4</option><option value="4">4 / 4</option></select></div>
+                        <div class="field-group"><label for="coach-preference">Coach preference (optional)</label><select id="coach-preference" name="coach_preference"><option value="">No preference</option><option value="Sleeper" {% if preferences and preferences.preferred_coach == "Sleeper" %}selected{% endif %}>Sleeper</option><option value="3A" {% if preferences and preferences.preferred_coach == "3A" %}selected{% endif %}>3A</option><option value="2A" {% if preferences and preferences.preferred_coach == "2A" %}selected{% endif %}>2A</option><option value="1A" {% if preferences and preferences.preferred_coach == "1A" %}selected{% endif %}>1A</option><option value="CC" {% if preferences and preferences.preferred_coach == "CC" %}selected{% endif %}>Chair Car</option><option value="General" {% if preferences and preferences.preferred_coach == "General" %}selected{% endif %}>General</option></select><small class="field-hint">Used only for an indicative planning estimate, not ticket availability.</small></div>
+                    </div>
+                    <fieldset class="preference-fieldset planner-filter-fieldset"><legend>Additional result constraints</legend>
+                        <label class="choice-row"><input type="checkbox" name="require_crowd_sample" value="true"><span><strong>Require crowd sample on every leg</strong><small>Hide options with any segment missing an approved community sample.</small></span></label>
+                        <label class="choice-row"><input type="checkbox" name="avoid_special_services" value="true"><span><strong>Exclude special services</strong><small>Remove catalogue entries marked as special services.</small></span></label>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="form-actions"><button type="submit" class="btn-plan" id="search-journeys"><span class="btn-plan__icon">⌕</span><span>Find journey options</span><span class="btn-plan__arrow">→</span></button><p>Results use the current RailCrowd timetable catalogue. Always verify with official railway sources.</p></div>
+            <div class="planner-error" id="planner-error" role="alert" hidden></div>
+        </form>
+    </div>
+    <aside class="planner-aside">
+        <article class="aside-card aside-card--blue"><div class="aside-card__icon">↗</div><h3>Compare options</h3><p>Review direct and connecting services with total travel time and transfer windows.</p><span>Route catalogue</span></article>
+        <article class="aside-card aside-card--green"><div class="aside-card__icon">◉</div><h3>Community context</h3><p>See recent approved crowd observations with age and sample-size context.</p><span>Not official occupancy</span></article>
+        <article class="aside-card aside-card--amber"><div class="aside-card__icon">✓</div><h3>Travel checklist</h3><p>Save a plan, track trip milestones and keep personal reminders together.</p><span>Passenger workspace</span></article>
+        {% if current_user.is_authenticated and current_user.role == 'passenger' %}<a class="aside-link" href="{{ url_for('journeys.saved_journeys') }}">My saved journeys <span>→</span></a><a class="aside-link" href="{{ url_for('journeys.presets_page') }}">Search presets <span>→</span></a><a class="aside-link" href="{{ url_for('journeys.search_history_page') }}">Recent searches <span>→</span></a><a class="aside-link" href="{{ url_for('journeys.insights_page') }}">Journey insights <span>→</span></a><a class="aside-link" href="{{ url_for('journeys.preferences') }}">Manage preferences <span>→</span></a>{% else %}<a class="aside-link" href="{{ url_for('authentication.login') }}">Sign in to save a journey <span>→</span></a>{% endif %}
+    </aside>
+</section>
+<section class="results-section" id="journey-results" aria-live="polite" hidden>
+    <div class="results-heading"><div><span class="eyebrow">YOUR OPTIONS</span><h2>Journey matches</h2><p id="results-summary">Options matching your selected route.</p></div><div class="results-controls"><label for="results-sort">Sort results</label><select id="results-sort"><option value="rank">Recommended</option><option value="duration">Shortest time</option><option value="transfers">Fewest transfers</option><option value="crowd">Lower crowd signal</option></select></div></div>
+    <div class="results-notice" id="results-notice"></div>
+    {% if current_user.is_authenticated and current_user.role == 'passenger' %}<form class="save-preset-form" id="save-preset-form"><label for="preset-title">Save these search settings as a preset</label><div><input id="preset-title" maxlength="80" placeholder="e.g. Weekly home route" required><button type="submit">Save preset</button></div><small id="preset-feedback" aria-live="polite"></small></form>{% endif %}
+    <div class="journey-results-grid" id="journey-results-list"></div>
+    <section class="journey-compare" id="journey-compare" hidden aria-live="polite"><header><div><span class="eyebrow">SIDE BY SIDE</span><h3>Compare selected options</h3></div><button type="button" id="clear-compare">Clear selection</button></header><div class="journey-compare__table" id="journey-compare-table"></div></section>
+    <div class="no-results" id="no-results" hidden><div class="no-results__icon">⌕</div><h3>No timetable match found</h3><p>Try allowing another transfer, widening your departure window or checking the station codes.</p><button type="button" class="btn-outline" id="edit-search">Adjust search</button></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>window.RAILCROWD_AUTHENTICATED = {{ (current_user.is_authenticated and current_user.role == 'passenger')|tojson }};</script>
+<script src="{{ url_for('static', filename='js/journeys/station-autocomplete.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/journeys/planner.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/journeys/results.js') }}" defer></script>
+{% endblock %}
