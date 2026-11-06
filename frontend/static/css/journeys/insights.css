@@ -1,0 +1,149 @@
+.insight-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 11px;
+    margin-bottom: 17px;
+}
+
+.insight-metric-grid article {
+    display: flex;
+    min-height: 116px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.insight-metric-grid span {
+    color: #8290a3;
+    font-size: .64rem;
+    font-weight: 700;
+}
+
+.insight-metric-grid strong {
+    color: #2e4d7d;
+    font-size: 1.55rem;
+    font-weight: 850;
+    letter-spacing: -.04em;
+}
+
+.insight-metric-grid small {
+    color: #a0aab7;
+    font-size: .58rem;
+}
+
+.insight-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.insight-card {
+    min-width: 0;
+    padding: 19px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #fff;
+}
+
+.insight-card h2 {
+    margin: 5px 0 15px;
+    color: #304762;
+    font-size: .95rem;
+    font-weight: 800;
+}
+
+.insight-card > p {
+    color: #8a97a8;
+    font-size: .67rem;
+}
+
+.insight-bar-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 35px;
+    gap: 6px 10px;
+    margin: 12px 0;
+}
+
+.insight-bar-row > span {
+    color: #75849a;
+    font-size: .66rem;
+}
+
+.insight-bar-row > strong {
+    color: #4c6895;
+    font-size: .66rem;
+    text-align: right;
+}
+
+.insight-bar {
+    grid-column: 1 / -1;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #edf1f6;
+}
+
+.insight-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #5d83c8, #8ba8d9);
+}
+
+.insight-route {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f3f7;
+}
+
+.insight-route:last-child {
+    border-bottom: 0;
+}
+
+.insight-route strong {
+    color: #526984;
+    font-size: .69rem;
+}
+
+.insight-route span {
+    color: #9aa5b3;
+    font-size: .6rem;
+}
+
+.insight-rating {
+    display: block;
+    color: #3d679f;
+    font-size: 2rem;
+    font-weight: 850;
+}
+
+.insight-rating small {
+    color: #9ba6b4;
+    font-size: .75rem;
+}
+
+@media (max-width: 850px) {
+    .insight-metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .insight-columns {
+        grid-template-columns: 1fr;
+    }
+    .insight-metric-grid article {
+        min-height: 100px;
+        padding: 13px;
+    }
+    .insight-metric-grid strong {
+        font-size: 1.3rem;
+    }
+}

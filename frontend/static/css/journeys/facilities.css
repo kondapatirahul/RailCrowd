@@ -1,0 +1,349 @@
+.facility-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 15px 0 24px;
+}
+
+.facility-summary-grid article {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 15px;
+    border: 1px solid #e3e9f1;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.facility-summary-grid strong {
+    color: #2e4b76;
+    font-size: 1.3rem;
+    font-weight: 850;
+}
+
+.facility-summary-grid span {
+    color: #8793a4;
+    font-size: .62rem;
+}
+
+.facility-directory {
+    margin-top: 24px;
+}
+
+.facility-directory > header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 14px;
+}
+
+.facility-directory h2 {
+    margin: 5px 0 4px;
+    color: #273b59;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.facility-directory > header p {
+    margin: 0;
+    color: #8a96a7;
+    font-size: .66rem;
+}
+
+.facility-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.facility-filters select {
+    min-height: 34px;
+    padding: 6px 26px 6px 8px;
+    border: 1px solid #dce4ed;
+    border-radius: 7px;
+    background: #fff;
+    color: #65758b;
+    font-size: .63rem;
+}
+
+.facility-filters label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #758399;
+    font-size: .62rem;
+    white-space: nowrap;
+}
+
+.facility-filters input {
+    accent-color: #245bd6;
+}
+
+.facility-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+}
+
+.facility-card {
+    min-width: 0;
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.facility-card[hidden] {
+    display: none;
+}
+
+.facility-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.facility-type {
+    color: #5c76a1;
+    font-size: .62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.facility-status {
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #f1f4f8;
+    color: #78869a;
+    font-size: .56rem;
+    font-weight: 800;
+}
+
+.facility-status--available {
+    background: #eaf8f1;
+    color: #21815d;
+}
+
+.facility-status--limited {
+    background: #fff5e7;
+    color: #a87529;
+}
+
+.facility-status--unavailable {
+    background: #fff0ef;
+    color: #b65a54;
+}
+
+.facility-status--unknown {
+    background: #f1f4f8;
+    color: #7d899a;
+}
+
+.facility-card h3 {
+    margin: 12px 0 5px;
+    color: #344963;
+    font-size: .88rem;
+    font-weight: 800;
+}
+
+.facility-card p {
+    margin: 6px 0;
+    color: #7f8ca0;
+    font-size: .66rem;
+    line-height: 1.55;
+}
+
+.facility-card .facility-location {
+    color: #60799f;
+    font-weight: 700;
+}
+
+.accessibility-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.accessibility-tags span {
+    padding: 4px 7px;
+    border: 1px solid #dcebe4;
+    border-radius: 6px;
+    background: #f3faf6;
+    color: #478267;
+    font-size: .55rem;
+    font-weight: 700;
+}
+
+.facility-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 5px;
+    margin-top: 13px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f3f7;
+    color: #9aa5b3;
+    font-size: .57rem;
+}
+
+.facility-feedback {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #edf1f5;
+}
+
+.facility-feedback summary {
+    color: #5b76a2;
+    cursor: pointer;
+    font-size: .65rem;
+    font-weight: 750;
+}
+
+.facility-feedback form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.facility-feedback label {
+    grid-column: span 2;
+    color: #7d899b;
+    font-size: .59rem;
+    font-weight: 750;
+}
+
+.facility-feedback select,
+.facility-feedback textarea {
+    min-width: 0;
+    padding: 7px;
+    border: 1px solid #e0e6ee;
+    border-radius: 6px;
+    color: #62738b;
+    font-size: .61rem;
+}
+
+.facility-feedback textarea {
+    grid-column: span 2;
+    resize: vertical;
+}
+
+.facility-feedback button {
+    grid-column: span 2;
+    min-height: 32px;
+    border: 1px solid #d6e2f3;
+    border-radius: 7px;
+    background: #f5f8ff;
+    color: #49699f;
+    cursor: pointer;
+    font-size: .62rem;
+    font-weight: 750;
+}
+
+.add-facility-card {
+    margin-top: 25px;
+    padding: 22px;
+    border: 1px solid #e1e8f2;
+    border-radius: 14px;
+    background: #fbfcff;
+}
+
+.add-facility-card h2 {
+    margin: 5px 0 16px;
+    color: #2d4260;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.add-facility-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.add-facility-card textarea {
+    resize: vertical;
+}
+
+.add-facility-card fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px 13px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+}
+
+.add-facility-card legend {
+    float: none;
+    width: auto;
+    padding: 0 5px;
+    color: #65758c;
+    font-size: .68rem;
+    font-weight: 750;
+}
+
+.tag-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #6e7e93;
+    font-size: .62rem;
+    font-weight: 600;
+}
+
+.tag-choice input {
+    width: 14px;
+    min-height: 14px;
+    height: 14px;
+    accent-color: #245bd6;
+}
+
+.add-facility-card button {
+    align-self: flex-start;
+}
+
+.signin-prompt {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1px solid #dce6f4;
+    border-radius: 9px;
+    background: #f8faff;
+    color: #78879b;
+    font-size: .7rem;
+}
+
+.signin-prompt a {
+    color: #3f68ad;
+    font-weight: 800;
+}
+
+@media (max-width: 850px) {
+    .facility-directory > header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .facility-filters {
+        width: 100%;
+    }
+}
+
+@media (max-width: 620px) {
+    .facility-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .facility-grid {
+        grid-template-columns: 1fr;
+    }
+    .facility-filters select {
+        flex: 1;
+    }
+    .add-facility-card {
+        padding: 17px;
+    }
+}

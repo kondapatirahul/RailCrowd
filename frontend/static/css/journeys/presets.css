@@ -1,0 +1,130 @@
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.preset-card {
+    padding: 18px;
+    border: 1px solid #e1e8f0;
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(28, 48, 78, .035);
+}
+
+.preset-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.preset-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 9px;
+    background: #eff4ff;
+    color: #5278bc;
+    font-size: 1rem;
+}
+
+.preset-default {
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #eaf8f1;
+    color: #21815d;
+    font-size: .57rem;
+    font-weight: 800;
+}
+
+.preset-card h2 {
+    margin: 14px 0 6px;
+    color: #334760;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.preset-card p {
+    margin: 0 0 4px;
+    color: #52709f;
+    font-size: .72rem;
+    font-weight: 750;
+}
+
+.preset-card > small {
+    color: #909cac;
+    font-size: .59rem;
+}
+
+.preset-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #edf1f5;
+}
+
+.preset-use {
+    flex: 1;
+    color: #4a6da9;
+    font-size: .66rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.preset-actions form {
+    margin: 0;
+}
+
+.preset-actions button {
+    padding: 6px 7px;
+    border: 1px solid #e1e7ef;
+    border-radius: 6px;
+    background: #fff;
+    color: #7b899c;
+    cursor: pointer;
+    font-size: .56rem;
+}
+
+.preset-actions form:last-child button {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    font-size: .9rem;
+}
+
+.preset-actions button:hover {
+    border-color: #cbd8ea;
+    background: #f7f9fc;
+    color: #486a9f;
+}
+
+@media (max-width: 900px) {
+    .preset-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .preset-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.preset-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -7px 0 14px;
+}
+
+.preset-summary span {
+    padding: 6px 9px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #fff;
+    color: #8090a4;
+    font-size: .59rem;
+    font-weight: 700;
+}
