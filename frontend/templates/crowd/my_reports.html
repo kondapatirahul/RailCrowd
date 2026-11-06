@@ -48,6 +48,18 @@
                 {% if report.notes %}
                     <p class="rc-report-notes">{{ report.notes }}</p>
                 {% endif %}
+                {% if report.status == 'pending' %}
+                <div class="rc-report-actions">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contributions.edit_report', report_id=report.id) }}">Edit report</a>
+                    <form method="post" action="{{ url_for('contributions.delete_report', report_id=report.id) }}"
+                          onsubmit="return confirm('Withdraw this pending report? This cannot be undone.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Withdraw</button>
+                    </form>
+                </div>
+                {% else %}
+                <p class="small text-muted mt-3 mb-0">This report is {{ report.status }} and can no longer be changed.</p>
+                {% endif %}
             </article>
             {% endfor %}
         </div>
