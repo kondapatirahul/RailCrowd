@@ -1,0 +1,23 @@
+{% extends "layouts/base.html" %}
+{% block title %}Edit disruption report · RailCrowd{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/incidents/forms.css') }}">{% endblock %}
+{% block content %}
+<section class="incident-form-page"><a class="incident-back" href="{{ url_for('incidents.detail_page', incident_id=incident.id) }}">← Incident details</a><header class="form-hero form-hero--compact"><span class="incident-eyebrow">UPDATE YOUR SUBMISSION</span><h1>Edit report <em>#{{ incident.id }}</em></h1><p>Only reports pending review can be edited. Your changes will appear in the incident timeline.</p></header>
+<form method="post" class="incident-report-form" novalidate data-incident-form>{{ form.hidden_tag() }}
+  <section class="form-section"><div class="form-section__heading"><span>01</span><div><h2>Incident details</h2><p>Keep the title and description factual.</p></div></div>
+    <div class="form-grid form-grid--two"><div class="form-field"><label for="category">Category</label>{{ form.category(id='category', class='form-control') }}</div><div class="form-field"><label for="severity">Severity</label>{{ form.severity(id='severity', class='form-control') }}</div></div>
+    <div class="form-field"><label for="title">Title</label>{{ form.title(id='title', class='form-control', maxlength=180) }}<div class="field-hint"><span>Describe the main issue.</span><span data-count-for="title">0 / 180</span></div></div>
+    <div class="form-field"><label for="description">Description</label>{{ form.description(id='description', class='form-control', rows=7, maxlength=5000) }}<div class="field-hint"><span>Remove private passenger information.</span><span data-count-for="description">0 / 5000</span></div></div>
+  </section>
+  <section class="form-section"><div class="form-section__heading"><span>02</span><div><h2>Location and timing</h2><p>Use exact station codes where possible.</p></div></div>
+    <div class="form-grid form-grid--two"><div class="form-field"><label for="train_number">Train number</label>{{ form.train_number(id='train_number', class='form-control') }}</div><div class="form-field"><label for="station_code">Station code</label>{{ form.station_code(id='station_code', class='form-control') }}</div></div>
+    <div class="form-grid form-grid--two"><div class="form-field"><label for="from_station">From</label>{{ form.from_station(id='from_station', class='form-control') }}</div><div class="form-field"><label for="to_station">To</label>{{ form.to_station(id='to_station', class='form-control') }}</div></div>
+    <div class="form-grid form-grid--two"><div class="form-field"><label for="platform">Platform</label>{{ form.platform(id='platform', class='form-control') }}</div><div class="form-field"><label for="coach">Coach</label>{{ form.coach(id='coach', class='form-control') }}</div></div>
+    <div class="form-field"><label for="occurred_at">Observed at</label>{{ form.occurred_at(id='occurred_at', class='form-control') }}</div>
+    <div class="form-field"><label for="evidence_reference">Evidence link</label>{{ form.evidence_reference(id='evidence_reference', class='form-control') }}</div>
+    <div class="form-check-field">{{ form.is_anonymous(id='is_anonymous') }}<label for="is_anonymous">Hide my name from public view</label></div>
+  </section>
+  <div class="form-submit-row"><a href="{{ url_for('incidents.detail_page', incident_id=incident.id) }}">Cancel</a><button type="submit">Save changes <span>→</span></button></div>
+</form></section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/incidents/accessibility.js') }}" defer></script><script src="{{ url_for('static', filename='js/incidents/forms.js') }}" defer></script>{% endblock %}
