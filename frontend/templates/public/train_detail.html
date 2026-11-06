@@ -1,26 +1,35 @@
 {% extends "layouts/base.html" %}
 {% block title %}{{ train.name }} ({{ train.number }}) | RailCrowd{% endblock %}
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/train_search.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/crowd_intelligence.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/report_verification.css') }}">
-{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saved_train_catalog.css') }}">{% endblock %}
 {% block content %}
 <section class="rc-train-page rc-detail-page">
   <a class="rc-back-link" href="{{ url_for('trains.search') }}">← Back to train search</a>
   <div class="rc-detail-hero">
     <span class="rc-eyebrow">TRAIN {{ train.number }}</span>
-    <h1>{{ train.name }}</h1>
-    <p>{{ train.train_type or "Train service" }}{% if train.running_days %} · {{ train.running_days }}{% endif %}</p>
+    <div class="rc-detail-title-row">
+      <div><h1>{{ train.name }}</h1><p>{{ train.train_type or "Train service" }}{% if train.running_days %} · {{ train.running_days }}{% endif %}</p></div>
+      {% if current_user.is_authenticated and current_user.role == 'passenger' %}
+        {% if is_saved_train %}
+          <form method="post" action="{{ url_for('trains.unsave_from_detail', train_number=train.number) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="rc-save-train is-saved" type="submit">★ Saved train</button>
+          </form>
+        {% else %}
+          <form method="post" action="{{ url_for('trains.save_from_detail', train_number=train.number) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="rc-save-train" type="submit">☆ Save train</button>
+          </form>
+        {% endif %}
+      {% elif not current_user.is_authenticated %}
+        <a class="rc-save-train" href="{{ url_for('authentication.login', next=request.path) }}">Sign in to save</a>
+      {% endif %}
+    </div>
     <div class="rc-detail-route">
       <div><small>FROM</small><strong>{{ train.source_station.name }}</strong><span>{{ train.source_station.code }}</span><b>{{ train.departure_time or "Time unavailable" }}</b></div>
       <div class="rc-detail-arrow">→</div>
       <div><small>TO</small><strong>{{ train.destination_station.name }}</strong><span>{{ train.destination_station.code }}</span><b>{{ train.arrival_time or "Time unavailable" }}</b></div>
     </div>
   </div>
-
-  {% include "components/crowd_intelligence.html" %}
-  {% include "components/report_verification.html" %}
 
   <div class="rc-results-heading"><div><h2>Route stations</h2><p>Stops available in the RailCrowd catalog.</p></div></div>
   {% if train.stops %}
@@ -36,6 +45,6 @@
   {% else %}
   <div class="rc-empty-state"><h3>Route stops not available yet</h3><p>The catalog currently contains the train's source and destination only.</p></div>
   {% endif %}
-  <div class="rc-data-note">Train route details are catalog information. Crowd summaries and report feedback are community observations, not official railway occupancy or live passenger counts.</div>
+  <div class="rc-data-note">This page displays catalog information only. Live running status, schedules, and official occupancy are not provided.</div>
 </section>
 {% endblock %}

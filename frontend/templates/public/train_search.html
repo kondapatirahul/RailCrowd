@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/train_search.css') }}">{% endblock %}
 {% block title %}Find Trains | RailCrowd{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saved_train_catalog.css') }}">{% endblock %}
 {% block content %}
 <section class="rc-train-page">
   <div class="rc-train-hero">
@@ -20,6 +20,9 @@
       <h2>{% if searched %}Search results{% else %}Available trains{% endif %}</h2>
       <p>{{ trains|length }} train(s) shown · Catalog data may be incomplete.</p>
     </div>
+    {% if current_user.is_authenticated and current_user.role == 'passenger' %}
+      <a class="rc-saved-shortcut" href="{{ url_for('notifications.saved_trains') }}">View saved trains</a>
+    {% endif %}
   </div>
 
   {% if trains %}
@@ -40,7 +43,22 @@
             {% if train.arrival_time %}<span>Arrives {{ train.arrival_time }}</span>{% endif %}
           </div>
         </div>
-        <a class="rc-view-train" href="{{ url_for('trains.detail', train_number=train.number) }}">View details →</a>
+        <div class="rc-train-actions">
+          <a class="rc-view-train" href="{{ url_for('trains.detail', train_number=train.number) }}">View details →</a>
+          {% if current_user.is_authenticated and current_user.role == 'passenger' %}
+            {% if train.number in saved_train_numbers %}
+              <form method="post" action="{{ url_for('trains.unsave_from_detail', train_number=train.number) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="rc-save-train is-saved" type="submit" aria-label="Remove {{ train.name }} from saved trains">★ Saved</button>
+              </form>
+            {% else %}
+              <form method="post" action="{{ url_for('trains.save_from_detail', train_number=train.number) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="rc-save-train" type="submit">☆ Save train</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
       </article>
       {% endfor %}
     </div>

@@ -46,6 +46,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     from backend.app.modules.crowd import contributions_bp, crowd_bp
     from backend.app.modules.notifications import notifications_bp
     from backend.app.modules.passenger import passenger_bp
+    from backend.app.modules.notifications import notifications_bp
     from backend.app.modules.trains import trains_bp
     from backend.app.utils.logging_config import configure_logging
 
@@ -66,6 +67,7 @@ def create_app(config_object: Any | None = None) -> Flask:
     import backend.app.models.notification  # noqa: F401
     import backend.app.models.station  # noqa: F401
     import backend.app.models.train  # noqa: F401
+    import backend.app.models.notification  # noqa: F401
     return app
 
 
