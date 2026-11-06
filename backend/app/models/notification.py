@@ -8,7 +8,7 @@ from backend.app.models.base import TimestampMixin
 
 
 class SavedTrain(TimestampMixin, db.Model):
-    """A passenger's saved train, keyed by its public train number."""
+    """A passenger's saved train, keyed by the public train number."""
 
     __tablename__ = "saved_trains"
     __table_args__ = (
