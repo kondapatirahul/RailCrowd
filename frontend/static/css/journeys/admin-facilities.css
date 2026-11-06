@@ -1,0 +1,100 @@
+.facility-admin-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.facility-admin-summary span {
+    padding: 7px 10px;
+    border: 1px solid #e1e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #718198;
+    font-size: .65rem;
+    font-weight: 750;
+}
+
+.facility-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.facility-review-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(230px, .7fr);
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.facility-review-card h2 {
+    margin: 6px 0;
+    color: #344a67;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.facility-review-card p {
+    margin: 4px 0;
+    color: #78879b;
+    font-size: .66rem;
+    line-height: 1.5;
+}
+
+.facility-review-card small {
+    display: inline-block;
+    margin-top: 7px;
+    color: #9aa5b3;
+    font-size: .58rem;
+}
+
+.facility-review-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.facility-review-card textarea {
+    width: 100%;
+    padding: 8px 9px;
+    border: 1px solid #dce4ed;
+    border-radius: 7px;
+    color: #53647c;
+    font-size: .64rem;
+    resize: vertical;
+}
+
+.facility-review-card form > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.facility-review-card button {
+    flex: 1;
+    min-height: 34px;
+    padding: 7px 9px;
+    border: 1px solid #d5e4db;
+    border-radius: 7px;
+    background: #f0faf4;
+    color: #28734f;
+    cursor: pointer;
+    font-size: .61rem;
+    font-weight: 800;
+}
+
+.facility-review-card button[value="hide"] {
+    border-color: #ecdada;
+    background: #fff6f5;
+    color: #a45d5b;
+}
+
+@media (max-width: 760px) {
+    .facility-review-card {
+        grid-template-columns: 1fr;
+    }
+}
